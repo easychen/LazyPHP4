@@ -27,3 +27,34 @@ LP4就是在这样一个背景下设计的，所以比起3，它增加了很多A
 ## 自动化
 
  - 整合LazyRest，通过可视化界面生成常规的接口代码（TODO）  
+ 
+ 
+# 手册和规范
+
+## controller
+和之前的版本一样，LP依然使用controller作为主入口。但访问路径从?a=&c=改为路由指定，因此，访问路径和controller名称以及method名称将不再有任何关联。
+
+## 注释规范
+
+### 路由指定
+
+```
+	/**
+     * 文档分段信息
+     * @ApiDescription(section="User", description="查看用户详细信息")
+     *
+     * 路由信息
+     * @ApiMethod(type="get")
+     * @ApiRoute(name="/user/{id}")
+     * @route /user(/@id:[0-9]+(/@mid))
+     *
+     * 参数说明
+     * @ApiParams(name="id", type="int", nullable=false, description="Uid", check="i|check_not_empty", cnname="用户ID")
+     *
+     * 
+     * @ApiReturn(type="object", sample="{'id':123}")
+     *
+     * 
+     */
+```
+ 
