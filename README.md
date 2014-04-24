@@ -116,7 +116,7 @@ LP４还提供了对象方式的数据库操作，返回结果更可控。
 ```php
 <?php
     db()->getData('SELECT * FROM `user`')->toArray(); // 返回数组 
-    db()->getData('SELECT * FROM `user` WHERE `id` = :id' , $id )->toLine(); // 返回数组，参数绑定模式 
+    db()->getData('SELECT * FROM `user` WHERE `id` = :id' , $id )->toLine(); // 返回数组中的一行，参数绑定模式 
     db()->getData('SELECT COUNT(*) FROM `user`')->toVar(); // 返回具体数值 
     db()->getData('SELECT * FROM `user`')->toIndexedArray('id'); // 返回以ID字段为Key的数组 
     db()->getData('SELECT * FROM `user`')->toColumn('id'); // 返回ID字段值的一维数组 
