@@ -8,7 +8,9 @@ LazyPHP4 , a lightweight framework for php api developer
 ## Preview
 非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 更欢迎push fix :D 微博吐槽 @Easy 
 
-我们正在征集这个开源项目的开发人员，接着会做LazyRest（可视化API接口设计界面）、LazyPush（Cordova版本的国内推送方案）。有兴趣的同学可以加我微信 easyatwx 。
+我们正在征集这个开源项目的开发人员，接着会做LazyRest（可视化API接口设计界面）、LazyPush（Cordova版本的国内推送方案）。有兴趣的同学可以加微信群：
+
+![](http://ftqq.com/wp-content/uploads//2014/04/Screen-Shot-2014-04-24-at-14.12.04.png)
 
 ## 为API设计
 在古代，PHP通常被视为HTML和Data之间的胶水，用来渲染和输出页面。当手机成为人类身体的一部分后，我们发现几乎所有的网站、产品都不可避免的遇到一个需求：多平台整合。
