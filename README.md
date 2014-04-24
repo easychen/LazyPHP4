@@ -2,6 +2,7 @@ LazyPHP4
 ========
 
 LazyPHP4 , a lightweight framework for php api developer
+![](http://ftqq.com/wp-content/uploads//2013/09/lplogo-210x300.jpg)
 
 ## Preview
 非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 
