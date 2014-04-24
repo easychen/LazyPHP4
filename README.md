@@ -53,9 +53,6 @@ LP4就是在这样一个背景下设计的，所以比起3，它增加了很多A
 
  - 整合LazyRest，通过可视化界面生成常规的接口代码（TODO）  
  
-## 优化
-
-  - 数据库控件使用PDO，支持参数绑定。添加了输出函数，可以置顶返回数据的一行、一列或者以某字段为索引重构数值，代价是直接getData不再返回数组啦。 
  
 # 手册和规范
 
@@ -74,38 +71,83 @@ $ cd where/lp4/root
 $ composer install
 ```
 
+### 运行
+如果你在不可写的环境（比如SAE）运行LP4，请在上传代码前运行 php _build.php 来生成自动路由。
+
 ## 迅捷函数
-function t( $str ) // trim
-function u( $str ) // urlencode
-function i( $str ) // intval
-function z( $str ) // strip_tags
-function v( $str ) // $_REQUEST[$str]
-function g( $str ) // $GLOBALS[$str]
-function ne( $str ) // not emptyy
-function dlog($log)  // 打印日志到文件
+- function t( $str ) // trim
+- function u( $str ) // urlencode
+- function i( $str ) // intval
+- function z( $str ) // strip_tags
+- function v( $str ) // $_REQUEST[$str]
+- function g( $str ) // $GLOBALS[$str]
+- function ne( $str ) // not emptyy
+- function dlog($log)  // 打印日志到文件
 
 ## 状态函数
-function is_devmode() // 开发模式
-function on_sae() // 是否运行于SAE
+- function is_devmode() // 开发模式
+- function on_sae() // 是否运行于SAE
 
 
 ## 数据库相关函数 
-function s( $str ) // escape
-function db() // 返回数据库对象
-function get_data( $sql ) // 根据SQL返回数组
-function get_line( $sql ) // 根据SQL返回单行数据
-function get_var( $sql ) // 根据SQL返回值
-function run_sql( $sql ) // 运行SQL
+- function s( $str ) // escape
+- function db() // 返回数据库对象
+- function get_data( $sql ) // 根据SQL返回数组
+- function get_line( $sql ) // 根据SQL返回单行数据
+- function get_var( $sql ) // 根据SQL返回值
+- function run_sql( $sql ) // 运行SQL
 
 由于LP4在框架外层做了catch，所以数据库异常会被拦截，并以json格式输出。
 
+LP４还提供了对象方式的数据库操作，返回结果更可控。
+```php
+<?php
+    db()->getData('SELECT * FROM `user`')->toArray(); // 返回数组 
+    db()->getData('SELECT * FROM `user` WHERE `id` = :id' , $id )->toLine(); // 返回数组，参数绑定模式 
+    db()->getData('SELECT COUNT(*) FROM `user`')->toVar(); // 返回具体数值 
+    db()->getData('SELECT * FROM `user`')->toIndexedArray('id'); // 返回以ID字段为Key的数组 
+    db()->getData('SELECT * FROM `user`')->toColumn('id'); // 返回ID字段值的一维数组 
+?>
+```
 
-## controller
+
+## Controller
 和之前的版本一样，LP依然使用controller作为主入口。但访问路径从?a=&c=改为路由指定，因此，访问路径和controller名称以及method名称将不再有任何关联。
 换句话说，你可以随意指定controller名称以及method名称，但注意其注释中的route不要重复，否则产生覆盖。
 
+## Layout & View
+由于只输出Json，所以视图层的东西都不存在了。嗯，只有两个方法
 
+- function send_result( $data )
+- function send_error( $type , $info = null )
 
+## 错误处理
+在处理逻辑出错时可以直接抛出异常。
+自带以下几类
+```php
+<?php
+$GLOBALS['rest_errors']['ROUTE'] = array( 'code' => '10000' , 'message' => 'route error' );
+$GLOBALS['rest_errors']['INPUT'] = array( 'code' => '10001' , 'message' => 'input error' );
+$GLOBALS['rest_errors']['DATABASE'] = array( 'code' => '30001' , 'message' => 'database error' );
+$GLOBALS['rest_errors']['DATA'] = array( 'code' => '40001' , 'message' => 'data error' );
+?>
+```
+可在 _lp/lib/functions.php 文件尾部追加自己的错误类型。比如我们来添加一个时间异常。
 
+第一步追加定义
+```php
+<?php
+$GLOBALS['rest_errors']['TIME'] = array( 'code' => '888888' , 'message' => 'time system error' );
+?>
+```
 
+然后就可以在controller的方法中抛出了
+```
+<?php
+    public function abc()
+    {
+        if( true ) throw new \Lazyphp\core\timeException("这里填写具体的错误信息");
+    }
+?>
+```
  
