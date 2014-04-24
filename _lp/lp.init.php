@@ -1,0 +1,54 @@
+<?php
+
+// 检查并补全必须的常量
+if( !defined('AROOT') ) die('NO AROOT!');
+if( !defined('DS') ) define( 'DS' , DIRECTORY_SEPARATOR );
+
+// 定义常用跟路径
+define( 'FROOT' , dirname( __FILE__ ) . DS );
+
+
+// 载入composer autoload
+require AROOT . 'vendor' . DS . 'autoload.php';
+
+
+// 初始化容器对象
+try
+{
+    require_once FROOT . 'lib' . DS . 'functions.php'; // 公用函数
+    require_once FROOT . 'config' . DS . 'core.php'; // 核心配置
+    require_once AROOT . 'config' . DS . 'database.php'; // 数据库配置
+    require_once AROOT . 'config' . DS . 'app.php'; // 应用配置
+
+    if( is_devmode() )
+    {
+        ini_set('display_errors',true);
+        error_reporting(E_ALL);
+    }
+
+    $force_build = (!on_sae()) && is_devmode();
+    load_route_file( $force_build );
+
+
+}catch( PDOException $e )
+{
+    $error = get_error( 'DATABASE' ); 
+    $error['message'] = $error['message']  . '- ' .$e->getMessage();
+    send_json($error);
+}
+catch(\Lazyphp\Core\RestException $e)
+{
+    $class_array = explode( '\\' , get_class( $e ) );
+    $class = t(end( $class_array ));
+    $prefix = strtoupper(rremove( $class , 'Exception' ));
+    
+    $error = get_error( $prefix ); 
+    $error['message'] = $error['message']  . '- ' .$e->getMessage();
+    send_json($error);
+    
+}
+catch(\Exception $e)
+{
+    // 全局异常处理流程
+    echo $e->getMessage();
+}
