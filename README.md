@@ -53,6 +53,8 @@ LP4的注释标记完全兼容[php-apidoc](https://github.com/calinrada/php-apid
 #### @ApiParams （ 扩展
 添加了 check和cnname两个属性，用来为参数指定检查函数，以及提供字段的中文解释（在错误提示时有用），如果不需要可以不写。
 
+注意：文档生成已经默认整合到编译工具_build.php中了，生成好的文档在docs目录下。
+
 
  
 ## 规范化
