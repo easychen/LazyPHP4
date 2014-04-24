@@ -43,10 +43,10 @@ LP4就是在这样一个背景下设计的，所以比起3，它增加了很多A
 
 LP4的注释标记完全兼容[php-apidoc](https://github.com/calinrada/php-apidoc)，但是扩展了两个标记。
 
-#### @ApiLazyRoute
-指定方法对应的路由。method和uri部分都是[flight](http://flightphp.com/learn)的语法。LP做的事情只是把它拼接起来。
+#### @ApiLazyRoute （ 新增
+指定方法对应的路由。method和uri部分都遵守[flightPHP](http://flightphp.com/learn)的语法。LP做的事情只是把它拼接起来。
 
-#### @ApiParams
+#### @ApiParams （ 扩展
 添加了 check和cnname两个属性，用来为参数指定检查函数，以及提供字段的中文解释（在错误提示时有用），如果不需要可以不写。
 
 
