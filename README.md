@@ -2,10 +2,11 @@ LazyPHP4
 ========
 
 LazyPHP4 , a lightweight framework for php api developer
+
 ![](http://ftqq.com/wp-content/uploads//2013/09/lplogo-210x300.jpg)
 
 ## Preview
-非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 
+非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 更欢迎push fix :D 微博吐槽 @Easy 
 
 ## 为API设计
 在古代，PHP通常被视为HTML和Data之间的胶水，用来渲染和输出页面。当手机成为人类身体的一部分后，我们发现几乎所有的网站、产品都不可避免的遇到一个需求：多平台整合。
