@@ -61,8 +61,8 @@ LP4的注释标记完全兼容[php-apidoc](https://github.com/calinrada/php-apid
 
   - 引入了namespace和异常处理
   - 整合了PHPUnit和Behat测试框架
-  - 整合了Composer，支持自动加载
-  - 整合了Phnix，可对数据库版本进行管理 
+  - 整合了[Composer](https://getcomposer.org/)，支持自动加载
+  - 整合了[Phinx](http://phinx.org/)，可对数据库版本进行管理 
   
 ## 自动化
 
