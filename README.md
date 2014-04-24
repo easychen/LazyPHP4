@@ -72,6 +72,7 @@ $ mv composer.phar /usr/local/bin/composer
 ```
 $ cd where/lp4/root
 $ composer install
+```
 
 ## 迅捷函数
 function t( $str ) // trim
