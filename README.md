@@ -59,8 +59,51 @@ LP4就是在这样一个背景下设计的，所以比起3，它增加了很多A
  
 # 手册和规范
 
+## 安装
+测试环境需要composer才能运行
+
+### 安装composer
+```
+$ curl -sS https://getcomposer.org/installer | php
+$ mv composer.phar /usr/local/bin/composer
+```
+
+### 安装LP4依赖
+```
+$ cd where/lp4/root
+$ composer install
+
+## 迅捷函数
+function t( $str ) // trim
+function u( $str ) // urlencode
+function i( $str ) // intval
+function z( $str ) // strip_tags
+function v( $str ) // $_REQUEST[$str]
+function g( $str ) // $GLOBALS[$str]
+function ne( $str ) // not emptyy
+function dlog($log)  // 打印日志到文件
+
+## 状态函数
+function is_devmode() // 开发模式
+function on_sae() // 是否运行于SAE
+
+
+## 数据库相关函数 
+function s( $str ) // escape
+function db() // 返回数据库对象
+function get_data( $sql ) // 根据SQL返回数组
+function get_line( $sql ) // 根据SQL返回单行数据
+function get_var( $sql ) // 根据SQL返回值
+function run_sql( $sql ) // 运行SQL
+
+由于LP4在框架外层做了catch，所以数据库异常会被拦截，并以json格式输出。
+
+
 ## controller
 和之前的版本一样，LP依然使用controller作为主入口。但访问路径从?a=&c=改为路由指定，因此，访问路径和controller名称以及method名称将不再有任何关联。
+换句话说，你可以随意指定controller名称以及method名称，但注意其注释中的route不要重复，否则产生覆盖。
+
+
 
 
 
