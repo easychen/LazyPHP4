@@ -8,7 +8,15 @@ LazyPHP4 , a lightweight framework for php api developer
 ## Preview
 非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 更欢迎push fix :D 微博吐槽 @Easy 
 
-我们正在征集这个开源项目的开发人员，接着会做LazyRest（可视化API接口设计界面）、LazyPush（Cordova版本的国内推送方案）。有兴趣的同学可以加微信群：
+我们正在征集这个开源项目的开发人员，接着会做LazyRest（可视化API接口设计界面）、LazyPush（Cordova版本的国内推送方案）。
+
+参与的方式如下：
+
+我们会放出每期的RoadMap，这里是[0.5Beta](https://github.com/geekcompany/LazyPHP4/issues?milestone=1&state=open)的，然后这里是[1.0Beta](https://github.com/geekcompany/LazyPHP4/issues?milestone=2&state=open)的。
+
+有兴趣的同学可以通过评论申请领取对应的任务，得到确认后fork，然后push。我们会在项目说明中提供贡献者列表。
+
+开发交流请加微信群：
 
 ![](http://ftqq.com/wp-content/uploads//2014/04/Screen-Shot-2014-04-24-at-14.12.04.png)
 
