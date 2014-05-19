@@ -32,6 +32,7 @@ function z( $str ){ return strip_tags($str); }
 function v( $str ){ return isset($_REQUEST[$str])?$_REQUEST[$str]:false; }
 function g( $str ){ return isset( $GLOBALS[$str] ) ? $GLOBALS[$str] : false; }
 function ne( $str ){ return strlen($str) > 0 ; }
+function nz( $int ){ return intval($int) > 0 ; }
 // 读取配置文件，支持二维数组（通过subkey
 function c( $key , $subkey = null )
 {
@@ -43,7 +44,7 @@ function c( $key , $subkey = null )
             return $GLOBALS['lpconfig'][$key];
     }
     else return false;
-    
+
 }
 // == 数据库相关函数 ==========================
 function s( $str ){ return trim(db()->quote($str),"'"); }
@@ -91,7 +92,7 @@ function type2pdo( $type )
     if( $type == 'int' )
     {
         return PDO::PARAM_INT;
-    } 
+    }
     else return PDO::PARAM_STR;
 }
 
@@ -100,11 +101,11 @@ function load_data_from_file( $file , $pdo )
     $sql_contents = preg_replace( "/(#.+[\r|\n]*)/" , '' , file_get_contents( $file ));
     $sqls = split_sql_file( $sql_contents );
 
-    foreach ($sqls as $sql) 
-        $pdo->exec( $sql );   
+    foreach ($sqls as $sql)
+        $pdo->exec( $sql );
 }
 
-function split_sql_file($sql, $delimiter = ';') 
+function split_sql_file($sql, $delimiter = ';')
 {
     $sql               = trim($sql);
     $char              = '';
@@ -164,14 +165,13 @@ function load_route_file( $force = false )
 {
     if( !file_exists(c('route_file')) || true == $force  )
         build_route_file();
-    
+
     if(!require c('route_file')) throw new \Exception("Build route file fail");
 }
 
 function build_route_file( $return = false )
 {
-    
-    // 加载所有的controller
+    $meta = array();
     if($cfiles = glob( AROOT . 'controller' . DS . '*Controller.php' ))
         foreach( $cfiles as $cfile )
             require_once $cfile;
@@ -188,31 +188,24 @@ function build_route_file( $return = false )
                 if($methods = $ref->getMethods())
                     foreach( $methods as $method )
                     {
-                        //print_r( parse_comment( $method->getDocComment() ) ) ;       
-
                         $item = array();
                         if( $item['meta'] = format_meta(parse_comment( $method->getDocComment() )) )
                         {
                             $item['class'] = $class;
                             $item['method'] = $method->name;
                             $item['meta']['binding'] = get_param_info($method->getParameters());
-                            
+
                             if( isset( $item['meta']['LazyRoute'][0]['route'] ) )
                                 $item['meta']['route'][] = array(  'uri' => $item['meta']['LazyRoute'][0]['route'] , 'params' => get_route_params($item['meta']['LazyRoute'][0]['route']));
 
 
-                            
+
                             $ret[] = $item;
                         }
                     }
             }
 
         }
-
-        //print_r($ret);
-        //return ;
-
-       
 
         if( count($ret) > 0 )
         {
@@ -226,7 +219,7 @@ function build_route_file( $return = false )
                     //echo "{$method_info['class']} , {$method_info['method']} = $key (build) \r\n";
                     $meta[$key] = $method_info['meta'];
                     // 生成路由部分代码
-                    
+
 
                     foreach( $method_info['meta']['route'] as $route )
                     {
@@ -246,7 +239,7 @@ function build_route_file( $return = false )
         if( $return ) return $source_code;
         else save_route_file( $source_code );
     }
-        
+
 }
 
 function save_route_file($source_code)
@@ -257,14 +250,14 @@ function save_route_file($source_code)
     {
         throw new \Exception( "compiled dir not writable" );
         return false;
-    } 
+    }
 
     if( !file_put_contents(c('route_file'),$source_code) )
     {
         throw new \Exception( "Build route file fail" );
         return false;
-    } 
-        
+    }
+
 
     return true;
 }
@@ -294,7 +287,7 @@ function build_source_code( $source , $meta = null )
     $content .= '}' . "\r\n" ;
 
     $content .= 'namespace{' . "\r\n" ;
-    
+
     // meta
     if( is_array($meta) )
         $content .= '$GLOBALS[\'meta\'] = ' . var_export( $meta , true ) .';'. "\r\n";
@@ -310,25 +303,25 @@ function build_source_code( $source , $meta = null )
 
 function build_exception_code()
 {
-    if( !isset($GLOBALS['rest_errors']) 
-        || !is_array($GLOBALS['rest_errors']) 
+    if( !isset($GLOBALS['rest_errors'])
+        || !is_array($GLOBALS['rest_errors'])
         || count($GLOBALS['rest_errors']) < 1 )
         return "";
     else
     {
         foreach( $GLOBALS['rest_errors'] as $key => $value )
             $excode[] = 'Class '
-                        . ucfirst(strtolower($key)) 
+                        . ucfirst(strtolower($key))
                         .'Exception extends \Lazyphp\Core\RestException {}';
-        
+
         if( isset( $excode ) && is_array( $excode ) )
         {
             $code = 'Class RestException extends \Exception {}'."\r\n";
             $code .=  join( "\r\n" , $excode )."\r\n";
             return $code;
-            
+
         }
-            
+
     }
 
 }
@@ -351,8 +344,6 @@ function format_meta( $meta )
 
         $ret[$key] = $value;
     }
-
-    //print_r( $ret );
 
     return isset($ret)?$ret:false;
 
@@ -385,7 +376,7 @@ function meta_format_lazyroute( $value )
     return array
     (
         'route' => $value['method'] . ' ' . $value['uri'],
-        'ApiMethod' => '(type="'.$value['method'].'")', 
+        'ApiMethod' => '(type="'.$value['method'].'")',
         'ApiRoute' => '(name="' . str2api( $value['uri'] ) . '")'
     );
 }
@@ -408,7 +399,7 @@ function str2api( $str )
     {
         return $out;
     }
-  */  
+  */
 }
 
 function get_route_params( $route )
@@ -426,19 +417,19 @@ function get_route_params( $route )
 function meta_format_table( $value )
 {
     $table = t(reset($value));
-    $pdo = new PDO(c('database_dev','dsn'),c('database_dev','user'),c('database_dev','pass')) ;
+    $pdo = new PDO(c('database_dev','dsn'),c('database_dev','user'),c('database_dev','password')) ;
     $datameta = new Datameta( $pdo );
     $ret['fields'] = $datameta ->getTableCols($table);
     $ret['names'] = $datameta->getFields($table);
 
-    return isset($ret)?$ret:false;    
-} 
+    return isset($ret)?$ret:false;
+}
 
 function meta_format_route( $value )
 {
     $ret['uri'] = join( " " , $value );
     $ret['params'] = get_route_params($ret['uri']);
-    
+
     return $ret;
 }
 
@@ -459,28 +450,35 @@ function meta_format_auto_type_check( $value )
 
 function meta_format_field_check( $value )
 {
-    if( strpos($value[0],':') !== false )
+    if($value){
+        if( strpos($value[0],':') !== false )
+        {
+            $tinfo = explode(':',t($value[0]));
+            $ret['name'] = array_shift( $tinfo );
+            $func_string = array_shift( $tinfo );
+            $ret['filters'] = array_map( "trim" , explode('|',$func_string ) );
+        }
+        else
+        {
+            $ret['name'] = $value[0];
+            $ret['filters'] = array( 'donothing' );
+        }
+
+        if( isset($value[1]) ) $ret['cnname'] = $value[1];
+
+        return $ret;
+    }else
     {
-        $tinfo = explode(':',t($value[0]));
-        $ret['name'] = array_shift( $tinfo );
-        $func_string = array_shift( $tinfo );
-        $ret['filters'] = array_map( "trim" , explode('|',$func_string ) );
-    }
-    else
-    {
-        $ret['name'] = $value[0];
-        $ret['filters'] = array( 'donothing' );
+        return $value;
     }
 
-    if( isset($value[1]) ) $ret['cnname'] = $value[1];
 
-    return $ret;
 
-}*/
+}
 
 function get_auto_check_filters( $field , $check_null = false )
 {
-    switch ( $field['type'] ) 
+    switch ( $field['type'] )
     {
         case 'int':
             $ret[] = 'i';
@@ -488,8 +486,8 @@ function get_auto_check_filters( $field , $check_null = false )
 
         case 'bigint':
             $ret[] = 'wintval';
-            break;    
-        
+            break;
+
         default:
             $ret[] = c('default_string_filter_func');
     }
@@ -514,10 +512,22 @@ function cnname( $name )
         {
             $cnname = $GLOBALS['meta'][$GLOBALS['meta_key']]['table'][0]['fields'][$name]['comment'];
             return ne($cnname)?$cnname:$name;
-        }    
+        }
     }
     return $name;
 }
+
+function array_key_index( $key , $array )
+{
+    $i = 0 ;
+    foreach( $array as $k => $v )
+    {
+        if( $k == $key ) return $i;
+        else $i++;
+    }
+}
+
+
 
 /*
 
@@ -559,6 +569,17 @@ function filter_intval( $string )
 }
 */
 
+function str2value( $str , $tolower = 1 )
+{
+    $arr=array();
+    preg_replace_callback('/(\w+)="(.*?)"/',function($m) use(&$arr,$tolower){
+            $key=$tolower?strtolower($m[1]):$m[1];
+            $arr[$key]=$m[2];
+     },$str);
+    return $arr;
+}
+
+
 function parse_comment( $comment )
 {
     $ret = false;
@@ -571,29 +592,10 @@ function parse_comment( $comment )
         while( isset( $out[1][$i] ) )
         {
             $ret[$out[1][$i]][] = str2value( $out[2][$i] );
-            
+
             $i++;
-            
+
         }
-
-        //print_r( $out );
-    }
-
-
-
-    return $ret;
-}
-
-function str2value( $str , $tolower = 1 )
-{
-    $args = explode("," , trim( $str ));
-    foreach( $args as $arg )
-    {
-        $kvs = explode( "=" , trim( $arg ) );
-        if( $tolower )
-            $ret[strtolower(trim($kvs[0]))] = trim( $kvs[1] , "'\"" );
-        else
-            $ret[trim($kvs[0])] = trim( $kvs[1] , "'\"" );
     }
     return $ret;
 }
@@ -641,17 +643,23 @@ function check_not_empty( $string )
     return ne($string);
 }
 
-function donothing( $string ){ return $string; } 
+function check_not_zero( $int )
+{
+    return nz($int);
+}
+
+
+function donothing( $string ){ return true; }
 
 // == 字符串Helper函数 ==========================
 function first( $array )
 {
-    return $array[0];
+    return is_array($array)?reset($array):false;
 }
 
 function last( $array )
 {
-    return $array[count($array)-1];
+    return is_array($array)?end($array):false;
 }
 
 function end_with( $str , $find )
@@ -686,6 +694,94 @@ function rremove( $string , $remove )
         return mb_substr( $string , 0 , mb_strlen( $string , 'UTF-8' ) - $len , 'UTF-8' );
     }
 }
+
+function hclean( $string )
+{
+    $string = strip_tags($string,'<p><a><b><i><blockquote><h1><h2><ol><ul><li><img><div><br><pre><strike>');
+    $string = checkhtml( $string );
+    $string = tidytag( $string );
+
+    return $string;
+}
+
+function tidytag( $content )
+{
+    $reg = '/(\.=["\'].+?["\'])/is';
+    return preg_replace( $reg , '' ,  $content );
+}
+
+function checkhtml($html)
+{
+    preg_match_all("/\<([^\<]+)\>/is", $html, $ms);
+
+    $searchs[] = '<';
+    $replaces[] = '&lt;';
+    $searchs[] = '>';
+    $replaces[] = '&gt;';
+
+    if($ms[1]) {
+        $allowtags = 'img|a|font|div|table|tbody|caption|tr|td|th|br|p|b|strong|i|u|em|span|ol|ul|li|blockquote|h1|h2|pre|strike';
+        $ms[1] = array_unique($ms[1]);
+        foreach ($ms[1] as $value) {
+            $searchs[] = "&lt;".$value."&gt;";
+
+            $value = str_replace('&amp;', '_uch_tmp_str_', $value);
+            $value = dhtmlspecialchars($value);
+            $value = str_replace('_uch_tmp_str_', '&amp;', $value);
+
+            $value = str_replace(array('\\','/*'), array('.','/.'), $value);
+            $skipkeys = array('onabort','onactivate','onafterprint','onafterupdate','onbeforeactivate','onbeforecopy','onbeforecut','onbeforedeactivate',
+                    'onbeforeeditfocus','onbeforepaste','onbeforeprint','onbeforeunload','onbeforeupdate','onblur','onbounce','oncellchange','onchange',
+                    'onclick','oncontextmenu','oncontrolselect','oncopy','oncut','ondataavailable','ondatasetchanged','ondatasetcomplete','ondblclick',
+                    'ondeactivate','ondrag','ondragend','ondragenter','ondragleave','ondragover','ondragstart','ondrop','onerror','onerrorupdate',
+                    'onfilterchange','onfinish','onfocus','onfocusin','onfocusout','onhelp','onkeydown','onkeypress','onkeyup','onlayoutcomplete',
+                    'onload','onlosecapture','onmousedown','onmouseenter','onmouseleave','onmousemove','onmouseout','onmouseover','onmouseup','onmousewheel',
+                    'onmove','onmoveend','onmovestart','onpaste','onpropertychange','onreadystatechange','onreset','onresize','onresizeend','onresizestart',
+                    'onrowenter','onrowexit','onrowsdelete','onrowsinserted','onscroll','onselect','onselectionchange','onselectstart','onstart','onstop',
+                    'onsubmit','onunload','javascript','script','eval','behaviour','expression','style');
+            $skipstr = implode('|', $skipkeys);
+            $value = preg_replace(array("/($skipstr)/i"), '.', $value);
+            if(!preg_match("/^[\/|\s]?($allowtags)(\s+|$)/is", $value)) {
+                $value = '';
+            }
+            $replaces[] = empty($value)?'':"<".str_replace('&quot;', '"', $value).">";
+        }
+    }
+    $html = str_replace($searchs, $replaces, $html);
+
+
+    return $html;
+}
+
+function dhtmlspecialchars($string, $flags = null)
+{
+    if(is_array($string)) {
+        foreach($string as $key => $val) {
+            $string[$key] = dhtmlspecialchars($val, $flags);
+        }
+    } else {
+        if($flags === null) {
+            $string = str_replace(array('&', '"', '<', '>'), array('&amp;', '&quot;', '&lt;', '&gt;'), $string);
+            if(strpos($string, '&amp;#') !== false) {
+                $string = preg_replace('/&amp;((#(\d{3,5}|x[a-fA-F0-9]{4}));)/', '&\\1', $string);
+            }
+        } else {
+            if(PHP_VERSION < '5.4.0') {
+                $string = htmlspecialchars($string, $flags);
+            } else {
+                if(strtolower(CHARSET) == 'utf-8') {
+                    $charset = 'UTF-8';
+                } else {
+                    $charset = 'ISO-8859-1';
+                }
+                $string = htmlspecialchars($string, $flags, $charset);
+            }
+        }
+    }
+    return $string;
+}
+
+// */
 
 
 // == 请求相关函数 ==========================
@@ -774,9 +870,9 @@ function send_error( $type , $info = null )
 
 function get_error( $type )
 {
-    if( !isset( $GLOBALS['rest_errors'][$type] ) ) 
+    if( !isset( $GLOBALS['rest_errors'][$type] ) )
         $error = array( 'code' => 99999 , 'message' => '其他' );
-    else 
+    else
         $error = $GLOBALS['rest_errors'][$type];
 
     return $error;
@@ -787,3 +883,4 @@ $GLOBALS['rest_errors']['ROUTE'] = array( 'code' => '10000' , 'message' => 'rout
 $GLOBALS['rest_errors']['INPUT'] = array( 'code' => '10001' , 'message' => 'input error' );
 $GLOBALS['rest_errors']['DATABASE'] = array( 'code' => '30001' , 'message' => 'database error' );
 $GLOBALS['rest_errors']['DATA'] = array( 'code' => '40001' , 'message' => 'data error' );
+$GLOBALS['rest_errors']['AUTH'] = array( 'code' => '20001' , 'message' => 'auth error' );

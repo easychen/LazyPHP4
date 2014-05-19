@@ -28,9 +28,12 @@ echo "Run behat  ...";
 echo shell_exec('vendor/bin/behat');
 echo " Done ".PHP_EOL;
 */
+echo "Check local changes ...".PHP_EOL;
+echo shell_exec('svn st');
 
 echo "Send to SAE via SVN...".PHP_EOL;
-if( !$comment = want("No svn comment? (Yes) ") ) $comment = 'update';
+//if( !$comment = want("No svn comment? (Yes) ") ) $comment = 'update';
+$comment = 'update';
 echo shell_exec('svn ci -m "' . $comment . '" ');
 
 function want( $str )

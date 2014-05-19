@@ -2,5 +2,5 @@ default:
   # ...
   extensions:
     Behat\MinkExtension\Extension:
-      base_url:  'http://lazyphp4.sinaapp.com'
+      base_url:  'http://jobdeer.sinaapp.com'
       goutte:    ~

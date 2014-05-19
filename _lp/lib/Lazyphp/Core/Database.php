@@ -4,11 +4,13 @@ use \PDO as PDO;
 
 class Database extends Object
 {
+    var $result = false;
+
     public function __construct( $dsn = null , $user = null , $password = null )
     {
         if( is_object( $dsn ) && strtolower(get_class( $dsn )) == 'pdo' )
-        { 
-            $this->pdo = $dsn; 
+        {
+            $this->pdo = $dsn;
         }
         else
         {
@@ -16,15 +18,15 @@ class Database extends Object
             {
                 $dsn = c('database','dsn');
                 $user = c('database','user');
-                $password = c('database','pass');
+                $password = c('database','password');
             }
-            $this->pdo = new PDO( $dsn , $user , $password );     
+            $this->pdo = new PDO( $dsn , $user , $password );
         }
 
         if( is_devmode() )
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        $this->pdo->exec("SET NAMES '" . c('database','charset') . "';");
+        $this->pdo->exec("SET NAMES 'utf8';");
     }
 
     // get data to result set
@@ -36,7 +38,7 @@ class Database extends Object
         return call_user_func_array(array($this, 'bindData'),$args );
     }
 
-    
+
 
 
     public function runSql()
@@ -59,77 +61,109 @@ class Database extends Object
 
         if( $arg_num < 1 )
         {
-            throw new PdoException("NO SQL PASSBY");
-            return $this;    
+            throw new \PdoException("NO SQL PASSBY");
+            return $this;
         }
         else
         {
             if( $arg_num == 1 )
             {
-                $this->result = $this->pdo->query( $args[0] );
-                return $this;
+                $sql = $args[0];
             }
-                
             else
             {
                 // 绑定
-                
+
                 $sql = array_shift($args);
                 if( $params = get_bind_params($sql) )
                 {
-                    $sth = $this->pdo->prepare( $sql );
+                    //$sth = $this->pdo->prepare( $sql );
                     $meta = $GLOBALS['meta'][$GLOBALS['meta_key']];
-                    
+
+                    if( isset( $meta['table'][0]['fields'] ) )
+                        $fields = $meta['table'][0]['fields'];
+
+                    $replace = array();
 
                     foreach( $params as $param )
                     {
                         $value = array_shift( $args );
-                        if(  isset($meta['table']) && $fields = $meta['table'][0]['fields'] && isset( $fields[$param] ) )
+                        if( isset( $fields[$param] ) && type2pdo($fields[$param]['type']) == PDO::PARAM_INT )
                         {
-                            $sth->bindValue(':'.$param, $value , type2pdo($fields[$param]['type']));
+
+                            $replace[':'.$param] = intval($value);
+                            //$sth->bindValue(':'.$param, $value , type2pdo($fields[$param]['type']));
                         }
                         else
                         {
-                            $sth->bindValue(':'.$param, $value , PDO::PARAM_STR);
+                            $replace[':'.$param] = "'" . s($value) . "'";
+                            //$sth->bindValue(':'.$param, $value , PDO::PARAM_STR);
                         }
                     }
-                    $sth->execute();
-                    if( 'getdata' == $type )
-                    {   
-                        $this->result[] = $sth->fetchAll(PDO::FETCH_ASSOC|PDO::FETCH_GROUP);
-                        /*
-                        while( $ret = $sth->fetch(PDO::FETCH_ASSOC) )
-                        {
-                            $this->result[] = $ret;
-                        }*/
-                    }
-                   
-                    return $this;
 
+                    $sql = str_replace( array_keys($replace), array_values($replace), $sql );
                 }
             }
+            //debug
+            slog($sql,$this->pdo);
+            if( 'getdata' == $type )
+            {
+                foreach( $this->pdo->query( $sql , PDO::FETCH_ASSOC ) as $item )
+                {
+
+                    if( is_array($this->result) ) $this->result[] = $item;
+                    else $this->result = array( '0' => $item );
+                }
+
+            }
+            else
+            {
+                $this->result = $this->pdo->exec( $sql );
+            }
+
+            //print_r( $this->result );
+
+
+
+            return $this;
         }
 
          return $this;
-                
+
     }
 
-    
+
 
     // export
     public function toLine()
     {
-        return first($this->result);
+        if( !isset($this->result) ) return false;
+
+        $ret = $this->result;
+        $this->result = null;
+        return first($ret);
     }
 
-    public function toVar()
+    public function toVar( $field = null )
     {
-        return first(first($this->result));
+        if( !isset($this->result) ) return false;
+
+        $ret = $this->result;
+        $this->result = null;
+
+        if( $field == null )
+            return first(first($ret));
+        else
+            return isset($ret[0][$field])?$ret[0][$field]:false;
     }
 
     public function toArray()
     {
-        return $this->result;
+        if( !isset($this->result) ) return false;
+
+        $ret = $this->result;
+        $this->result = null;
+        return $ret;
     }
 
     public function col( $name )
@@ -139,8 +173,13 @@ class Database extends Object
 
     public function toColumn( $name )
     {
-        if( !isset( $this->result ) || !is_array($this->result) ) return false;
-        foreach( $this->result as $line )
+        if( !isset($this->result) ) return false;
+
+        $rs = $this->result;
+        $this->result = null;
+
+        if( !isset( $rs ) || !is_array($rs) ) return false;
+        foreach( $rs as $line )
             if( isset($line[$name]) ) $ret[] = $line[$name];
 
         return isset($ret)?$ret:false;
@@ -153,8 +192,13 @@ class Database extends Object
 
     public function toIndexedArray( $name )
     {
-        if( !isset( $this->result ) || !is_array($this->result) ) return false;
-        foreach( $this->result as $line )
+        if( !isset($this->result) ) return false;
+
+        $rs = $this->result;
+        $this->result = null;
+
+        if( !isset( $rs ) || !is_array($rs) ) return false;
+        foreach( $rs as $line )
             $ret[$line[$name]] = $line;
 
         return isset($ret)?$ret:false;
@@ -165,21 +209,14 @@ class Database extends Object
         return $this->pdo->quote( $string );
     }
 
-    /**
-    // chain
-    public function table( $name )
+    public function lastId()
     {
-    $this->from = $name;
-    return $this;
+        return $this->pdo->lastInsertId();
     }
 
 
-    public function find( $sql = 'all' )
-    {
-    if( strtolower($sql) == all ) $sql = 1;
-    $this->where[] = $sql;
-    return $this;
-    }
-     */
+
+
+
 
 }

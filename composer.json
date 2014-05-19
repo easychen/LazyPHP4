@@ -9,8 +9,7 @@
         "behat/mink": "1.4@stable",
         "behat/mink-extension": "*",
         "behat/mink-goutte-driver": "1.0.*@dev",
-        "crada/php-apidoc": "@dev",
-        "robmorgan/phinx": "*"
+        "crada/php-apidoc": "@dev"
     },
     "autoload":
     {

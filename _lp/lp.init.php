@@ -7,6 +7,9 @@ if( !defined('DS') ) define( 'DS' , DIRECTORY_SEPARATOR );
 // 定义常用跟路径
 define( 'FROOT' , dirname( __FILE__ ) . DS );
 
+// 设置时区
+@date_default_timezone_set('Asia/Chongqing');
+
 
 // 载入composer autoload
 require AROOT . 'vendor' . DS . 'autoload.php';
@@ -19,6 +22,7 @@ try
     require_once FROOT . 'config' . DS . 'core.php'; // 核心配置
     require_once AROOT . 'config' . DS . 'database.php'; // 数据库配置
     require_once AROOT . 'config' . DS . 'app.php'; // 应用配置
+    require_once AROOT . 'lib' . DS . 'functions.php'; // 公用函数
 
     if( is_devmode() )
     {
@@ -32,7 +36,7 @@ try
 
 }catch( PDOException $e )
 {
-    $error = get_error( 'DATABASE' ); 
+    $error = get_error( 'DATABASE' );
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
     send_json($error);
 }
@@ -41,14 +45,20 @@ catch(\Lazyphp\Core\RestException $e)
     $class_array = explode( '\\' , get_class( $e ) );
     $class = t(end( $class_array ));
     $prefix = strtoupper(rremove( $class , 'Exception' ));
-    
-    $error = get_error( $prefix ); 
+
+    $error = get_error( $prefix );
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
     send_json($error);
-    
+
 }
 catch(\Exception $e)
 {
-    // 全局异常处理流程
-    echo $e->getMessage();
+    // alway send json format
+    $class_array = explode( '\\' , get_class( $e ) );
+    $class = t(end( $class_array ));
+    $prefix = strtoupper(rremove( $class , 'Exception' ));
+
+    $error = get_error( $prefix );
+    $error['message'] = $error['message']  . '- ' .$e->getMessage();
+    send_json($error);
 }

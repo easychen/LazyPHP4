@@ -10,15 +10,29 @@ class Lazyphp_Database_TestCase extends PHPUnit_Extensions_Database_TestCase
         $db =  new \Lazyphp\Core\Database($pdo);
         
         // 
+        //$db->getData("SHOW TABLES")->toArray();
+        
         if($tables = $db->getData("SHOW TABLES")->toArray())
             foreach( $tables as $table )
                if($tablenames = array_values($table))
                     foreach( $tablenames as $tablename )
+                    {
+                        //echo "sql = DROP TABLES `{$tablename}`";
                         $db->runSql("DROP TABLES `{$tablename}`") ;
+                    }
+                        
         
         // add fresh data
-        load_data_from_file( TROOT . 'data' . DS . 'dev.sql' , $pdo );
-
+        try
+        {
+            load_data_from_file( TROOT . 'data' . DS . 'dev.sql' , $pdo );    
+        }
+        catch( Exception $e )
+        {
+            echo $e->getMessage();
+        }            
+        
+        
     }
 
     

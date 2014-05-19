@@ -48,15 +48,25 @@ class Dispatcher
         list($class, $method) = $func;
         $instance = new $class();
 
-        //print_r($params);
         $key = cmkey( $class, $method );
         if( isset($GLOBALS['meta'][$key]) )
         {
             $GLOBALS['meta_key'] = $key;
             // 获取方法所对应的Meta信息
             $meta = $GLOBALS['meta'][$key];
-            $route_parmas = array_slice($meta['route'][0]['params'], 0, count($params)); 
-            
+            if($meta['route'][0]['params'] != false)
+                $route_parmas = array_slice($meta['route'][0]['params'], 0, count($params));
+            else
+                $route_parmas = array();
+            if(isset($_SERVER['is_demo']) && $_SERVER['is_demo'] == 1)
+            {
+                response()
+                    ->status(200)
+                    ->header('Content-Type', 'application/json')
+                    ->write($meta['Return'][0]['sample'])
+                    ->send();
+                // exit($meta['Return'][0]['sample']);
+            }
 
             // 不管自动检查是否打开，先处理field_check
             if( isset( $meta['Params'] ) && is_array( $meta['Params'] ) )
@@ -85,8 +95,8 @@ class Dispatcher
                         if(isset($fields[$name]))
                         {
                             // 当数据库中存在注释时，当做中文名，不存在时，使用英文名
-                            $cnname = ne($fields[$name]['comment'])?$fields[$name]['comment']:$name; 
-                            
+                            $cnname = ne($fields[$name]['comment'])?$fields[$name]['comment']:$name;
+
                             if( !isset($to_check[$name]) )
                             {
                                 $to_check[$name] = array
@@ -95,17 +105,17 @@ class Dispatcher
                                     'cnname' => $cnname,
                                     'filters' => get_auto_check_filters($fields[$name])
                                 );
-                            } 
+                            }
                             else
                             {
                                 // 当字段信息已经通过field_check指定，但未指定中文名时
-                                if( !isset($to_check[$name]['cnname']) ) 
+                                if( !isset($to_check[$name]['cnname']) )
                                     $to_check[$name]['cnname'] = $cnname;
                             }
-                              
-                        }    
+
+                        }
                     }
-                } 
+                }
             }
             */
 
@@ -129,7 +139,7 @@ class Dispatcher
                                     // 如果是路由器自带变量
                                     if( isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
                                         $vv = $params[array_search( $item['name'] , $route_parmas )]; // 按顺序从参数中获取
-                                    else 
+                                    else
                                         $vv = v($item['name']); // 按名字从REQUEST中获取
 
                                     //echo $item['name'] .'s vv=' . $vv;
@@ -140,7 +150,7 @@ class Dispatcher
                                         throw new InputException($item['cnname']."(" . $item['name'] . ")未提供或格式不正确 via ".$check_function);
                                     }
                                 }
-                                    
+
                             }
                             else
                             {
@@ -150,18 +160,21 @@ class Dispatcher
                                 {
                                     if( isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
                                     {
-                                       $params[array_search( $item['name'] , $route_parmas )] = 
-                                       call_user_func( $check_function , $params[array_search( $item['name'] , $route_parmas )] );  
+                                       $params[array_search( $item['name'] , $route_parmas )] =
+                                       call_user_func( $check_function , $params[array_search( $item['name'] , $route_parmas )] );
                                     }
                                     elseif( isset( $_REQUEST[$item['name']] ) )
                                     {
                                         $_REQUEST[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
+
+                                        //echo 'REQUEST[' . $item['name'] . ']='.$_REQUEST[$item['name']] .'\ED ';
+
                                     }
                                 }
 
 
-                                     
-                                    
+
+
 
                             }
                         }
@@ -175,11 +188,7 @@ class Dispatcher
                         if( isset($meta['binding'][$item['name']]) ) $params[] = v($item['name']);
 
                 }
-            
-            
 
-
-            
         }
 
         //print_r($params);
