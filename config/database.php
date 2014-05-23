@@ -7,8 +7,8 @@ if( on_sae() )
         'adapter' => 'mysql',
         'host' => SAE_MYSQL_HOST_M,
         'name' => SAE_MYSQL_DB,
-        'user' => '3knjyx2520',
-        'password' => 'm355yjw34kwiwwhyz4k04xz352wjk0yxl5hl4mmi',
+        'user' => '',
+        'password' => '',
         'port' => SAE_MYSQL_PORT,
         'charset' => 'utf8'
     );
@@ -26,9 +26,9 @@ else
     (
         'adapter' => 'mysql',
         'host' => 'localhost',
-        'name' => 'gucool',
+        'name' => '*',
         'user' => 'root',
-        'password' => '123456',
+        'password' => '',
         'port' => 3306,
         'charset' => 'utf8'
     );
@@ -45,9 +45,9 @@ $GLOBALS['lpconfig']['database_dev'] = array
     (
         'adapter' => 'mysql',
         'host' => 'localhost',
-        'name' => 'gucool',
+        'name' => '*',
         'user' => 'root',
-        'password' => '123456',
+        'password' => '',
         'port' => 3306,
         'charset' => 'utf8'
     );
