@@ -14,6 +14,10 @@ function dlog($log,$type='log',$css='')
     if( is_array($log) ) $log = print_r( $log , true );
     if( is_writable( $log_file ) )
         file_put_contents( $log_file, $log . '@'.time() . PHP_EOL , FILE_APPEND );
+    elseif( on_sae() )
+    {
+    	sae_debug( $log );
+    }		
 
 }
 
@@ -649,7 +653,7 @@ function check_not_zero( $int )
 }
 
 
-function donothing( $string ){ return true; }
+function donothing( $string ){ return $string; } 
 
 // == 字符串Helper函数 ==========================
 function first( $array )

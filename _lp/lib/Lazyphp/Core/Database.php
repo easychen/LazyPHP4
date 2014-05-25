@@ -104,8 +104,7 @@ class Database extends Object
                     $sql = str_replace( array_keys($replace), array_values($replace), $sql );
                 }
             }
-            //debug
-            slog($sql,$this->pdo);
+
             if( 'getdata' == $type )
             {
                 foreach( $this->pdo->query( $sql , PDO::FETCH_ASSOC ) as $item )

@@ -30,13 +30,13 @@ try
         error_reporting(E_ALL);
     }
 
-    $force_build = (!on_sae()) && is_devmode();
+    $force_build = (!on_sae()) && is_devmode() && c('buildeverytime') ;
     load_route_file( $force_build );
 
 
 }catch( PDOException $e )
 {
-    $error = get_error( 'DATABASE' );
+    $error = get_error( 'DATABASE' ); 
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
     send_json($error);
 }
@@ -45,8 +45,8 @@ catch(\Lazyphp\Core\RestException $e)
     $class_array = explode( '\\' , get_class( $e ) );
     $class = t(end( $class_array ));
     $prefix = strtoupper(rremove( $class , 'Exception' ));
-
-    $error = get_error( $prefix );
+    
+    $error = get_error( $prefix ); 
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
     send_json($error);
 

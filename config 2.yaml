@@ -1,2 +1,0 @@
-handle:
-  - rewrite: if (!is_file() && !is_dir() && path ~ "^/(.*)") goto "index.php/$1"

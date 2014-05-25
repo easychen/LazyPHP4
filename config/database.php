@@ -7,8 +7,8 @@ if( on_sae() )
         'adapter' => 'mysql',
         'host' => SAE_MYSQL_HOST_M,
         'name' => SAE_MYSQL_DB,
-        'user' => '',
-        'password' => '',
+        'user' =>  SAE_MYSQL_USER ,
+        'password' => SAE_MYSQL_PASS,
         'port' => SAE_MYSQL_PORT,
         'charset' => 'utf8'
     );

@@ -54,21 +54,15 @@ class Dispatcher
             $GLOBALS['meta_key'] = $key;
             // 获取方法所对应的Meta信息
             $meta = $GLOBALS['meta'][$key];
-            if($meta['route'][0]['params'] != false)
+
+           
+            if( $meta['route'][0]['params'] && is_array( $meta['route'][0]['params'] ) )
                 $route_parmas = array_slice($meta['route'][0]['params'], 0, count($params));
             else
-                $route_parmas = array();
-            if(isset($_SERVER['is_demo']) && $_SERVER['is_demo'] == 1)
-            {
-                response()
-                    ->status(200)
-                    ->header('Content-Type', 'application/json')
-                    ->write($meta['Return'][0]['sample'])
-                    ->send();
-                // exit($meta['Return'][0]['sample']);
-            }
+                $route_parmas = false;     
 
             // 不管自动检查是否打开，先处理field_check
+	    //  new verison changed filed_check to params
             if( isset( $meta['Params'] ) && is_array( $meta['Params'] ) )
             {
                 foreach( $meta['Params'] as $item )
@@ -79,45 +73,7 @@ class Dispatcher
                 }
             }
 
-            /*
-            // 当自动检查打开时
-            if( $meta['auto_type_check'] != 'false' && isset( $meta['table'][0]['names'] ) )
-            {
-                $names = array_map('strtolower',$meta['table'][0]['names']);
-                $fields = $meta['table'][0]['fields'];
-                // 检查输入变量，看哪些和数据库字段匹配
-                foreach( $_REQUEST as $key => $value )
-                {
-                    // 当输入的变量名和数据库字段名匹配时
-                    if( in_array( $name = strtolower(trim($key)) , $names ) )
-                    {
-                        // 根据数据库元信息向to_chceck补充信息
-                        if(isset($fields[$name]))
-                        {
-                            // 当数据库中存在注释时，当做中文名，不存在时，使用英文名
-                            $cnname = ne($fields[$name]['comment'])?$fields[$name]['comment']:$name;
-
-                            if( !isset($to_check[$name]) )
-                            {
-                                $to_check[$name] = array
-                                (
-                                    'name' => $name,
-                                    'cnname' => $cnname,
-                                    'filters' => get_auto_check_filters($fields[$name])
-                                );
-                            }
-                            else
-                            {
-                                // 当字段信息已经通过field_check指定，但未指定中文名时
-                                if( !isset($to_check[$name]['cnname']) )
-                                    $to_check[$name]['cnname'] = $cnname;
-                            }
-
-                        }
-                    }
-                }
-            }
-            */
+            
 
             // 开始根据to_check数组，对输入项进行检查
             if( isset( $to_check ) && is_array( $to_check ) )
@@ -137,7 +93,7 @@ class Dispatcher
                                 {
                                     //echo $item['name']  . '~' . print_r( $meta['route'][0]['params'] , 1 );
                                     // 如果是路由器自带变量
-                                    if( isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
+                                    if( $route_parmas && isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
                                         $vv = $params[array_search( $item['name'] , $route_parmas )]; // 按顺序从参数中获取
                                     else
                                         $vv = v($item['name']); // 按名字从REQUEST中获取
@@ -158,7 +114,7 @@ class Dispatcher
                                 // 修改request数值
                                 if( function_exists( $check_function ) )
                                 {
-                                    if( isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
+                                    if( $route_parmas && isset($meta['route'][0]['params']) && in_array( $item['name'] , $route_parmas ) )
                                     {
                                        $params[array_search( $item['name'] , $route_parmas )] =
                                        call_user_func( $check_function , $params[array_search( $item['name'] , $route_parmas )] );
@@ -184,14 +140,24 @@ class Dispatcher
                     // 注意这个地方是依赖于参数顺序的
 
                     // 如果在路由中
-                    if(!in_array( $item['name'] , $route_parmas ))
-                        if( isset($meta['binding'][$item['name']]) ) $params[] = v($item['name']);
+                    if( !($route_parmas && in_array( $item['name'] , $route_parmas )))
+                        if( isset($meta['binding'][$item['name']]) )
+                        {
+                            // 变量顺序按绑定顺序排序
+                            $index = array_key_index( $item['name'],$meta['binding'] );
+                            $request_params[$index] = v($item['name']);
+                        }
 
                 }
 
         }
 
-        //print_r($params);
+        // 强制request变量按function参数顺序进行绑定
+        if( isset($request_params) && is_array( $request_params ) )
+        {
+            ksort( $request_params );
+            $params = array_merge( $params , $request_params );  
+        }
         return call_user_func_array(array( $instance , $method  ) , $params);
 
     }

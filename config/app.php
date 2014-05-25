@@ -6,5 +6,6 @@ if(!on_sae())
 {
     $GLOBALS['lpconfig']['mode'] = 'dev';
 }
+$GLOBALS['lpconfig']['buildeverytime'] = false;
 
 
