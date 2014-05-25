@@ -649,7 +649,7 @@ function check_not_zero( $int )
 }
 
 
-function donothing( $string ){ return true; }
+function donothing( $string ){ return $string; }
 
 // == 字符串Helper函数 ==========================
 function first( $array )
