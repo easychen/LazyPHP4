@@ -16,8 +16,8 @@ function dlog($log,$type='log',$css='')
         file_put_contents( $log_file, $log . '@'.time() . PHP_EOL , FILE_APPEND );
     elseif( on_sae() )
     {
-    	sae_debug( $log );
-    }		
+        sae_debug( $log );
+    }       
 
 }
 
