@@ -17,7 +17,7 @@ function dlog($log,$type='log',$css='')
     elseif( on_sae() )
     {
         sae_debug( $log );
-    }       
+    }
 
 }
 
@@ -520,6 +520,7 @@ function cnname( $name )
     }
     return $name;
 }
+*/
 
 function array_key_index( $key , $array )
 {
@@ -653,7 +654,7 @@ function check_not_zero( $int )
 }
 
 
-function donothing( $string ){ return $string; } 
+function donothing( $string ){ return $string; }
 
 // == 字符串Helper函数 ==========================
 function first( $array )
