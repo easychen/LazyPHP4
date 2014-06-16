@@ -387,16 +387,11 @@ function meta_format_lazyroute( $value )
 
 function str2api( $str )
 {
-  // TODO
-  // 需要一个更好的正则
+    $str = str_replace( '(' , '' , $str);
+    $str = str_replace( ')' , '' , $str);
+    $str = preg_replace('/(?:@([^\/:]+)|:)[^\/]*/i', '{$1}', $str);
+    return $str;
 
-  $str = str_replace( '(' , '' , $str);
-  $str = str_replace( ')' , '' , $str);
-  $str = preg_replace( '/(:(.+?))\//' , '/' , $str);
-  $str = preg_replace( '/(:(.+?))$/' , '' , $str);
-  $str = preg_replace( '/@(.+?)\//is' , '{$1}/' , $str);
-  $str = preg_replace( '/@(.+?)$/is' , '{$1}' , $str);
-  return $str;
   /*
   $reg = '/([a-zA-Z_-0-9]+?)/is';
   if( preg_match_all($reg, $str, $out) )

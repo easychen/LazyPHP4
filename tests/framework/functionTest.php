@@ -35,4 +35,13 @@ class functionTest extends PHPUnit_Framework_TestCase
         $GLOBALS['__testvalue'] = 'config_test';
         $this->assertEquals('config_test',g('__testvalue'));
     }
+
+    public function testStr2api()
+    {
+        $this->assertEquals(str2api('(/@name/)'), '/{name}/');
+        $this->assertEquals(str2api('/@age'), '/{age}');
+        $this->assertEquals(str2api('/mail/@id/'), '/mail/{id}/');
+        $this->assertEquals(str2api('/@addr:[0-9]+/@str:[a-z]+'), '/{addr}/{str}');
+        $this->assertEquals(str2api('/@a/@b/@c/'), '/{a}/{b}/{c}/');
+    }
 }
