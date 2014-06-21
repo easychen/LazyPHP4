@@ -572,7 +572,7 @@ function filter_intval( $string )
 function str2value( $str , $tolower = 1 )
 {
     $arr=array();
-    preg_replace_callback('/(\w+)="(.*?)"/',function($m) use(&$arr,$tolower){
+    preg_replace_callback('/(\w+)="(.*?)"/s',function($m) use(&$arr,$tolower){
             $key=$tolower?strtolower($m[1]):$m[1];
             $arr[$key]=$m[2];
      },$str);
@@ -583,14 +583,14 @@ function str2value( $str , $tolower = 1 )
 function parse_comment( $comment )
 {
     $ret = false;
-
-    $reg = '/@Api(.+?)\((.+?)\)$/im';
+    $reg = '/@Api(.+?)\(((?:(?!"\)).)*")\)\r?/is';
     if( preg_match_all($reg,$comment,$out) )
     {
         $ret = array() ; $i = 0 ;
 
         while( isset( $out[1][$i] ) )
         {
+            $out[2][$i] = preg_replace('/^\s*\*/m', '', $out[2][$i]);
             $ret[$out[1][$i]][] = str2value( $out[2][$i] );
 
             $i++;

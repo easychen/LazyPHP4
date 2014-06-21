@@ -11,8 +11,8 @@ namespace Lazyphp\Core;
  *  $member->getNameById('1')->toVar();
  *  $member->getDataById(array('name','avatar') , 1)->toLine();
  *  $member->getAllByArray(array('name'=>'easy'))->toLine();  
- *  $member->findNameByNothing()->col('name');
- *  $member->findNameByNothingLimit(array(2,5))->col('name'); 
+ *  $member->findName()->col('name');
+ *  $member->findNameLimit(array(2,5))->col('name'); 
  */
 class Ldo extends Object
 {
@@ -27,7 +27,8 @@ class Ldo extends Object
         if( !isset($this->table) ) throw new \Exception("LDO未绑定数据表");
         
 
-        $reg = '/(get|find)([A-Z_]+[a-z0-9_]*)By([A-Z_]+[a-z0-9_]*)(Limit)*/s';
+        //$reg = '/(get|find)([A-Z_]+[a-z0-9_]*)By([A-Z_]+[a-z0-9_]*)(Limit)*/s';
+        $reg = '/(get|find)([A-Z_]+[a-z0-9_]*)(?:By?([A-Z_]+[a-z0-9_]*)|)(Limit)*/s';
         if( preg_match( $reg , $name , $out ) )
         {
             //print_r($out);
@@ -104,6 +105,10 @@ class Ldo extends Object
                     $where_sql = " `" . $where . "` = '" . s( $value ) . "' ";
                 }
                     
+            }
+            else
+            {
+                $where_sql = " 1 ";
             }
             
 
