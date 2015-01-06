@@ -33,7 +33,25 @@ function t( $str ){ return trim($str); }
 function u( $str ){ return urlencode($str); }
 function i( $str ){ return intval($str); }
 function z( $str ){ return strip_tags($str); }
-function v( $str ){ return isset($_REQUEST[$str])?$_REQUEST[$str]:false; }
+function v( $str )
+{
+    if(isset($_POST[$str]))
+    {
+        return $_POST[$str];
+    }
+    elseif(isset($_GET[$str]))
+    {
+        return $_GET[$str];
+    }
+    elseif(isset($_REQUEST[$str]))
+    {
+        return $_REQUEST[$str];
+    }
+    else
+    {
+        return false;
+    }
+}
 function g( $str ){ return isset( $GLOBALS[$str] ) ? $GLOBALS[$str] : false; }
 function ne( $str ){ return strlen($str) > 0 ; }
 function nz( $int ){ return intval($int) > 0 ; }

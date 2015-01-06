@@ -4,7 +4,6 @@ namespace Lazyphp\Core;
 class Dispatcher
 {
     public static function execute($callback, array &$params = array()) {
-
         return is_array($callback) ?
             self::invokeMethod($callback, $params) :
             self::callFunction($callback, $params);
@@ -46,6 +45,7 @@ class Dispatcher
     public static function invokeMethod($func, array &$params = array())
     {
         list($class, $method) = $func;
+        $GLOBALS['__METHOD__'] = $method;
         $instance = new $class();
 
         $key = cmkey( $class, $method );
@@ -54,15 +54,18 @@ class Dispatcher
             $GLOBALS['meta_key'] = $key;
             // 获取方法所对应的Meta信息
             $meta = $GLOBALS['meta'][$key];
+            $route_type = $meta['route'][0]['uri'];
+            $route_type = substr($route_type, 0, strpos($route_type, ' '));
+            if( $meta['route'][0]['params'] && is_array( $meta['route'][0]['params'] ) )
+            {
 
-           
+            }
             if( $meta['route'][0]['params'] && is_array( $meta['route'][0]['params'] ) )
                 $route_parmas = array_slice($meta['route'][0]['params'], 0, count($params));
             else
-                $route_parmas = false;     
+                $route_parmas = false;
 
             // 不管自动检查是否打开，先处理field_check
-	    //  new verison changed filed_check to params
             if( isset( $meta['Params'] ) && is_array( $meta['Params'] ) )
             {
                 foreach( $meta['Params'] as $item )
@@ -73,11 +76,9 @@ class Dispatcher
                 }
             }
 
-            
-
             // 开始根据to_check数组，对输入项进行检查
             if( isset( $to_check ) && is_array( $to_check ) )
-                foreach( $to_check as $item )
+                foreach( $to_check as $key=>$item )
                 {
                     if( isset($item['filters']) && is_array( $item['filters'] ) )
                     {
@@ -121,17 +122,23 @@ class Dispatcher
                                     }
                                     elseif( isset( $_REQUEST[$item['name']] ) )
                                     {
-                                        $_REQUEST[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
-
-                                        //echo 'REQUEST[' . $item['name'] . ']='.$_REQUEST[$item['name']] .'\ED ';
-
+                                        $php_uri_type = '_'.strtoupper($route_type);
+                                        switch ($php_uri_type) {
+                                            case '_GET':
+                                                $_GET[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
+                                                break;
+                                            case '_POST':
+                                                $_POST[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
+                                                break;
+                                            case '_PUT':
+                                                $_PUT[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
+                                                break;
+                                            case '_DELETE':
+                                                $_DELETE[$item['name']] = call_user_func( $check_function , $_REQUEST[$item['name']] );
+                                                break;
+                                        }
                                     }
                                 }
-
-
-
-
-
                             }
                         }
                     }
@@ -145,10 +152,13 @@ class Dispatcher
                         {
                             // 变量顺序按绑定顺序排序
                             $index = array_key_index( $item['name'],$meta['binding'] );
-                            $request_params[$index] = v($item['name']);
+                            $request_params[$index] = (isset($meta['binding'][$item['name']]['default']) && !isset($_REQUEST[$item['name']]))?
+                                    $meta['binding'][$item['name']]['default']:
+                                    v($item['name']);
                         }
-
+                    // slog($request_params);
                 }
+                slog($meta['binding']);
 
         }
 
@@ -156,10 +166,9 @@ class Dispatcher
         if( isset($request_params) && is_array( $request_params ) )
         {
             ksort( $request_params );
-            $params = array_merge( $params , $request_params );  
+            $params = array_merge( $params , $request_params );
         }
         return call_user_func_array(array( $instance , $method  ) , $params);
-
     }
 
 }
