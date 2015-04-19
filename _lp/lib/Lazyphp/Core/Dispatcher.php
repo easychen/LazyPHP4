@@ -158,7 +158,7 @@ class Dispatcher
                         }
                     // slog($request_params);
                 }
-                slog($meta['binding']);
+                //slog($meta['binding']);
 
         }
 
