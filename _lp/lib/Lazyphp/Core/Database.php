@@ -54,6 +54,7 @@ class Database extends Object
      */
     protected function bindData()
     {
+        $this->result=false;
         $arg_num = func_num_args();
         $arg_num = $arg_num - 1;
         $args = func_get_args();

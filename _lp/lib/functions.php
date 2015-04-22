@@ -605,6 +605,7 @@ function str2value( $str , $tolower = 1 )
 
 function parse_comment( $comment )
 {
+    $comment = str_replace(PHP_EOL, "\n", $comment);
     $ret = false;
 
     $reg = '/@Api(.+?)\((.+?)\)$/im';

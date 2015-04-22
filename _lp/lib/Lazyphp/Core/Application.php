@@ -36,6 +36,7 @@ class Application
         while ($route = $this->router->route($this->request))
         {
             $params = array_values($route->params);
+            //TODO 修复参数顺序和meta不一致
 
             $continue = $this->dispatcher->execute(
                 $route->callback,
@@ -57,8 +58,14 @@ class Application
 
     public function notFound()
     {
+        $code=404;
+        if('OPTIONS'==$_SERVER['REQUEST_METHOD'])
+        {
+            //ajax跨域请求之前的options请求，为了避免如上传失败，返回200
+            $code=200;
+        }
         $this->response
-            ->status(404)
+            ->status($code)
             ->write(
                 '<h1>404 Not Found</h1>'.
                 '<h3>The page you have requested could not be found.</h3>'.

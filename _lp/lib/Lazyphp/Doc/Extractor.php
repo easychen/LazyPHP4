@@ -140,8 +140,7 @@ class Extractor
                         
                         //echo $replace;
                         $doctext = str_replace( $old , $replace,  $doctext);
-                        $doccoment = "/**\r\n" . $doctext . "*"."/";
-                        
+                        $doccoment = "/**".PHP_EOL . $doctext . "*/";
                     }
                 }
                 
