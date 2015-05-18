@@ -136,9 +136,9 @@ LP４还提供了对象方式的数据库操作，返回结果更可控。
 ```
 
 ### LDO
-其实LP4还提供了一个针对表进行数据查询的对象 LDO , 首先从数据表new一个Ldo对象，然后就可以用getXXX语法来查询了。因为支持Limit以后，我实在没搞定正则，所以现在还有ByNothing这种奇葩结构。
+其实LP4还提供了一个针对表进行数据查询的对象 LDO , 首先从数据表new一个Ldo对象，然后就可以用getXXX语法来查询了。
 
-嘛，在做简单查询时很好用，getAllById这样的。
+在做简单查询时很好用，getAllById这样的。
 
 ```php
 <?php
@@ -148,8 +148,8 @@ $member->getAllById('1')->toLine();
 $member->getNameById('1')->toVar();
 $member->getDataById(array('name','avatar') , 1)->toLine();
 $member->getAllByArray(array('name'=>'easy'))->toLine();  
-$member->findNameByNothing()->col('name');
-$member->findNameByNothingLimit(array(2,5))->col('name'); 
+$member->findName()->col('name');
+$member->findNameLimit(array(2,5))->col('name'); 
 
 ?>
 ```

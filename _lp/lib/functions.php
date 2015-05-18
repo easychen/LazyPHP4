@@ -405,16 +405,11 @@ function meta_format_lazyroute( $value )
 
 function str2api( $str )
 {
-  // TODO
-  // 需要一个更好的正则
+    $str = str_replace( '(' , '' , $str);
+    $str = str_replace( ')' , '' , $str);
+    $str = preg_replace('/(?:@([^\/:]+)|:)[^\/]*/i', '{$1}', $str);
+    return $str;
 
-  $str = str_replace( '(' , '' , $str);
-  $str = str_replace( ')' , '' , $str);
-  $str = preg_replace( '/(:(.+?))\//' , '/' , $str);
-  $str = preg_replace( '/(:(.+?))$/' , '' , $str);
-  $str = preg_replace( '/@(.+?)\//is' , '{$1}/' , $str);
-  $str = preg_replace( '/@(.+?)$/is' , '{$1}' , $str);
-  return $str;
   /*
   $reg = '/([a-zA-Z_-0-9]+?)/is';
   if( preg_match_all($reg, $str, $out) )
@@ -595,7 +590,7 @@ function filter_intval( $string )
 function str2value( $str , $tolower = 1 )
 {
     $arr=array();
-    preg_replace_callback('/(\w+)="(.*?)"/',function($m) use(&$arr,$tolower){
+    preg_replace_callback('/(\w+)="(.*?)"/s',function($m) use(&$arr,$tolower){
             $key=$tolower?strtolower($m[1]):$m[1];
             $arr[$key]=$m[2];
      },$str);
@@ -607,14 +602,14 @@ function parse_comment( $comment )
 {
     $comment = str_replace(PHP_EOL, "\n", $comment);
     $ret = false;
-
-    $reg = '/@Api(.+?)\((.+?)\)$/im';
+    $reg = '/@Api(.+?)\(((?:(?!"\)).)*")\)\r?/is';
     if( preg_match_all($reg,$comment,$out) )
     {
         $ret = array() ; $i = 0 ;
 
         while( isset( $out[1][$i] ) )
         {
+            $out[2][$i] = preg_replace('/^\s*\*/m', '', $out[2][$i]);
             $ret[$out[1][$i]][] = str2value( $out[2][$i] );
 
             $i++;
