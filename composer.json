@@ -1,7 +1,8 @@
 {
     "require":
     {
-        "php":">=5.3.3"
+        "php":">=5.3.3",
+        "robmorgan/phinx": "dev-master"
     },
     "require-dev":
     {
@@ -20,3 +21,4 @@
         }
     }
 }
+
