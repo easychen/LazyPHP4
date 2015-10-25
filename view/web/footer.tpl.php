@@ -37,11 +37,11 @@
 <script src="http://libs.useso.com/js/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
 <?php if( isset($data['js']) && is_array( $data['js'] ) ): ?>
-    <?php foreach( $data['js'] as $jfile ): ?><script type="text/javascript" src="assets/script/<?=$jfile;?>" ></script>
+    <?php foreach( $data['js'] as $jfile ): ?><script type="text/javascript" src="/assets/script/<?=$jfile;?>" ></script>
     <?php endforeach; ?>
 <?php endif; ?>
 
- <script type="text/javascript" src="assets/script/app.js" ></script>
+ <script type="text/javascript" src="/assets/script/app.js" ></script>
 
 <!-- Custom Theme JavaScript -->
 <script>

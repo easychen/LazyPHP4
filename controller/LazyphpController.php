@@ -18,7 +18,7 @@ class LazyphpController
     public function index()
     {
         $data['title'] = $data['top_title'] = 'Version 4.5';
-        send_result( $data );
+        return send_result( $data );
     }
 
     /**
@@ -30,7 +30,7 @@ class LazyphpController
     public function info()
     {
         //$data['notice'] = ;
-        send_error('SYSTEM','这里是信息提示页面');
+        return send_error('SYSTEM','这里是信息提示页面');
     }
     
     /**
@@ -43,7 +43,7 @@ class LazyphpController
      */
     public function demo($first,$second)
     {
-        send_result(intval($first)*intval($second));
+        return send_result(intval($first)*intval($second));
     }
 
 }

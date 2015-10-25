@@ -12,11 +12,16 @@ define( 'FROOT' , dirname( __FILE__ ) . DS . '_lp' . DS );
 // 载入composer autoload
 require AROOT . 'vendor' . DS . 'autoload.php';
 
+// 框架配置
 require_once FROOT . 'lib' . DS . 'functions.php'; // 公用函数
-require_once AROOT . 'lib' . DS . 'functions.php'; // 应用函数
+require_once FROOT . 'config' . DS . 'exception.php'; // 公用函数
 require_once FROOT . 'config' . DS . 'core.php'; // 核心配置
+
+// 应用配置
+require_once AROOT . 'lib' . DS . 'functions.php'; // 公用函数
 require_once AROOT . 'config' . DS . 'database.php'; // 数据库配置
 require_once AROOT . 'config' . DS . 'app.php'; // 应用配置
+require_once AROOT . 'config' . DS . 'exception.php'; // 公用函数
 
 build_route_file();
 

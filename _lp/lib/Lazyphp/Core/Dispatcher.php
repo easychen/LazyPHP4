@@ -46,7 +46,7 @@ class Dispatcher
     {
         list($class, $method) = $func;
         $cname = last( explode( "\\" , $class ) );
-        $GLOBALS['c'] = rremove( $cname , 'Controller');
+        $GLOBALS['c'] = strtolower(rremove( $cname , 'Controller'));
         $GLOBALS['a'] = $GLOBALS['__METHOD__']  = $method;
         $instance = new $class();
 
