@@ -14,7 +14,8 @@
         <div class="row">
             <div class="col-lg-12 text-center">
                 <h2>What's new in 4.5?</h2>
-                <p class="lead">Redesign for API</p>
+                <p class="lead"><a href="https://github.com/easychen/LazyPHP4/tree/master#lazyphp45">Document</a></p>
+         
             </div>
         </div>
         <!-- /.row -->
