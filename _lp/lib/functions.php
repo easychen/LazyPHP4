@@ -847,13 +847,13 @@ if (!function_exists('apache_request_headers'))
 function is_ajax_request()
 {
     $headers = apache_request_headers();
-    return (isset( $headers['X-Requested-With'] ) && ( $headers['X-Requested-With'] == 'XMLHttpRequest' )) || (isset( $headers['x-requested-with'] ) && ($headers['x-requested-with'] == 'XMLHttpRequest' ));
+    return (isset( $headers['X-Requested-With'] ) && ( strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest') )) || (isset( $headers['x-requested-with'] ) && (strtolower($headers['x-requested-with']) == strtolower('XMLHttpRequest') ));
 }
 
 function is_json_request()
 {
     $headers = apache_request_headers();
-    return (isset( $headers['Content-Type'] ) && ( clean_header($headers['Content-Type']) == 'application/json' ));
+    return (isset( $headers['Content-Type'] ) && ( strtolower($headers['Content-Type']) == 'application/json' ));
 }
 
 // == 响应相关函数 ==========================

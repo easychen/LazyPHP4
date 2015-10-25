@@ -38,6 +38,8 @@
     
     $mainfile = dirname( __FILE__ ) . DS . 'main' . DS . g('c') . '_' . g('a') . '.tpl.php';
     if( file_exists( $mainfile ) ) include( $mainfile );
+    else echo "<div class='notice-box'>没有设置模板文件，如需获取JSON，请将Header的Content-Type设置为application/json</div>";
+
 
     $footer_file = dirname( __FILE__ ) . DS  . 'footer.tpl.php'; 
     if( file_exists( $footer_file ) ) include( $footer_file );
