@@ -826,11 +826,12 @@ if (!function_exists('apache_request_headers'))
 {
     function apache_request_headers()
     {
-        foreach($_SERVER as $key=>$value)
+        foreach( $_SERVER as $key => $value )
         {
-            if (substr($key,0,5)=="HTTP_")
+            if ( substr($key,0,5)=="HTTP_" )
             {
-                $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
+                $key = str_replace( " " , "-" , ucwords( strtolower( str_replace( "_" , " " , substr( $key , 5 ) ))));
+
                 $out[$key]=$value;
             }
             else
@@ -873,22 +874,84 @@ function send_json( $obj )
         ->send();
 }
 
-function send_result( $data )
+function send_result( $data , $force_json = false )
 {
     $ret['code'] = 0 ;
     $ret['message'] = '' ;
     $ret['data'] = $data ;
-    send_json( $ret );
+    
+    if( is_json_request() || $force_json )
+        return send_json( $ret );
+    elseif( is_ajax_request() )
+        return render_ajax( $ret , 'default' );
+    else 
+        return render_web( $ret , 'default' );
+}
+
+function render_ajax( $data , $sharp = 'default' )
+{
+    return render( $data , 'ajax' , $sharp );
 }
 
 
-function send_error( $type , $info = null )
+function render_web( $data , $sharp = 'default' )
 {
-    $error = get_error( $type );
-    if( $info != null )
-        $error['message'] = $error['message'].' -' . $info ;
+    return render( $data , 'web' , $sharp );
+}
 
-    send_json($error);
+function render( $data , $layout = null ,  $sharp = 'default' )
+{
+    
+    if( $layout == null )
+    {
+        if( is_ajax_request() )
+            $layout = 'ajax';
+        else
+            $layout = 'web';
+    }
+
+    $GLOBALS['layout'] = $layout;
+    $GLOBALS['sharp'] = $sharp;
+    
+    $layout_file = AROOT . 'view' . DS . $layout . DS . $sharp . '.tpl.php';
+
+    if( file_exists( $layout_file ) )
+    {
+        @extract( $data );
+        return require( $layout_file );
+    }
+    else
+    {
+        // 模板文件不存在
+        return send_error( 'TMPLATE' , 'file ' . $layout_file . ' not exists ' , true );
+    }
+
+}
+
+
+
+function send_error( $type , $info = null , $force_json = false )
+{
+    
+    if($error = get_error( $type ))
+    {
+        if( $info != null )
+            $error['message'] = $error['message'].' -' . $info ;
+    }
+    else
+    {
+        $error['message'] = $info;
+    }
+        
+   //print_r( $error );
+
+    //send_json($error);
+    if( is_json_request() || $force_json )
+        return send_json( $error );
+    elseif( is_ajax_request() )
+        return render_ajax( $error , 'info' );
+    else 
+        return render_web( $error , 'info' );
 }
 
 
@@ -902,9 +965,3 @@ function get_error( $type )
     return $error;
 }
 
-// == REST错误类型定义和Exception元数据 ==========================
-$GLOBALS['rest_errors']['ROUTE'] = array( 'code' => '10000' , 'message' => 'route error' );
-$GLOBALS['rest_errors']['INPUT'] = array( 'code' => '10001' , 'message' => 'input error' );
-$GLOBALS['rest_errors']['DATABASE'] = array( 'code' => '30001' , 'message' => 'database error' );
-$GLOBALS['rest_errors']['DATA'] = array( 'code' => '40001' , 'message' => 'data error' );
-$GLOBALS['rest_errors']['AUTH'] = array( 'code' => '20001' , 'message' => 'auth error' );

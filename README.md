@@ -1,24 +1,18 @@
-LazyPHP4
-========
+LazyPHP4.5
 
-LazyPHP4 , a lightweight framework for php api developer
+[TOC]
 
-![](http://ftqq.com/wp-content/uploads//2013/09/lplogo-210x300.jpg)
+# LazyPHP3、LazyPHP4和LazyPHP4.5 
 
-## Preview
-非稳定版，正在不断调试和更新中。欢迎通过issue提供意见和建议。 更欢迎push fix :D 微博吐槽 @Easy 
+![](http://ww4.sinaimg.cn/large/40dfde6fjw1exdf1mk9erj20af0afmxw.jpg)
 
-我们正在征集这个开源项目的开发人员，接着会做LazyRest（可视化API接口设计界面）、LazyPush（Cordova版本的国内推送方案）。
+先介绍下LazyPHP各个版本的关系。LazyPHP一直是我的自用框架，所以很大程序上它都是随着我所认为的开发趋势一步步演进的。
 
-参与的方式如下：
+LP3形成于新浪云时期，它专注于降低学习成本。通过反向封装面向对象为函数接口，甚至能帮助不了解面向对象的程序员写出强壮的程序。因为逻辑的简单性，在SAE相关项目上大量使用。
 
-我们会放出每期的RoadMap，这里是[0.5Beta](https://github.com/geekcompany/LazyPHP4/issues?milestone=1&state=open)的，然后这里是[1.0Beta](https://github.com/geekcompany/LazyPHP4/issues?milestone=2&state=open)的。
+LP4则是我创业后为JobDeer相关项目的需求而设计的版本。作为一家移动互联网时代的创业公司，我们需要通过一套框架来支持网站和客户端。LP3还停留在ajax渲染的时代，所以我面向API对LP进行了重新设计。
 
-有兴趣的同学可以通过评论申请领取对应的任务，得到确认后fork，然后push。我们会在项目说明中提供贡献者列表。
-
-开发交流请加微信群：
-
-![](http://ftqq.com/wp-content/uploads//2014/04/Screen-Shot-2014-04-24-at-14.12.04.png)
+以下是LP4的特性：
 
 ## 为API设计
 在古代，PHP通常被视为HTML和Data之间的胶水，用来渲染和输出页面。当手机成为人类身体的一部分后，我们发现几乎所有的网站、产品都不可避免的遇到一个需求：多平台整合。
@@ -160,11 +154,6 @@ $member->findNameByNothingLimit(array(2,5))->col('name');
 和之前的版本一样，LP依然使用controller作为主入口。但访问路径从?a=&c=改为路由指定，因此，访问路径和controller名称以及method名称将不再有任何关联。
 换句话说，你可以随意指定controller名称以及method名称，但注意其注释中的route不要重复，否则产生覆盖。
 
-## Layout & View
-由于只输出Json，所以视图层的东西都不存在了。嗯，只有两个方法
-
-- function send_result( $data )
-- function send_error( $type , $info = null )
 
 ## 错误处理
 在处理逻辑出错时可以直接抛出异常。
@@ -196,3 +185,112 @@ $GLOBALS['rest_errors']['TIME'] = array( 'code' => '888888' , 'message' => 'time
 ?>
 ```
  
+# LazyPHP4.5 
+LazyPHP4.5是LazyPHP4之上的一个版本，它将LazyPHP3的模板系统重新加了回来。之所以有这个版本，是因为我发现做一些小项目时，我们并不需要那么纯粹的API和客户端分离。毕竟全平台应用会消耗大量的时间，很多活动页面和MVP直接用PHP模板渲染来得更快。
+
+当然，我可以用回LP3.1，但是用惯了LP4中的一些功能后，就各种回不去了。这不是正好有点时间么，所以顺手给LP4加上了模板系统。
+
+## LP4.5的修改
+
+### LP4易用性优化
+
+#### 异常配置分离成独立文件
+在LP4中，定义错误类型时，我们需要去 ```_lp/lib/functions.php``` 文件尾部追加自己的错误类型。LP4.5中，将这部分直接分离成了配置文件，直接修改 ```/config/exception.php``` 即可。
+ 
+#### 添加默认页面和默认路由
+LP4对新手有个大坑，就是配置完全正确时，访问根目录会提示404。这是因为演示用路由是 ```/demo/times/``` ，所以访问跟目录404是正确的。
+
+为了不让大家再次掉到坑里去，LP4.5中添加了根目录的演示页面。
+
+#### 将配置文件中的自动编译打开，方便调试
+LP4刚安装完时每次修改完代码都要运行 ```php _build.php``` 才能生效，这是因为配置文件中的开关默认关了。考虑到刚装完必然是要进行开发调试，LP4.5将其默认打开了。
+
+```
+$GLOBALS['lpconfig']['buildeverytime'] = true;
+```
+
+### 模板系统的引入
+LP4.5引入了之前LP3的模板系统，但是又不完全一样，所以这一段请大家仔细读读。
+
+#### 智能渲染
+
+LP4.5引入了智能渲染的概念，简单的说，就是同一个页面，你要Json我就按Json渲染；你要Ajax我就按Ajax渲染；你要Web页面我就按Web来渲染。
+
+具体的判断是根据请求头来识别的，不多说直接上代码：
+
+```
+function is_ajax_request()
+{
+    $headers = apache_request_headers();
+    return (isset( $headers['X-Requested-With'] ) && ( $headers['X-Requested-With'] == 'XMLHttpRequest' )) || (isset( $headers['x-requested-with'] ) && ($headers['x-requested-with'] == 'XMLHttpRequest' ));
+}
+
+function is_json_request()
+{
+    $headers = apache_request_headers();
+    return (isset( $headers['Content-Type'] ) && ( clean_header($headers['Content-Type']) == 'application/json' ));
+}
+```
+
+这样会带来一个非常大的好处，就是我们的API接口和Web页面完全统一起来了，不用再为API写专门的代码了。
+
+同时这也会带来一个潜在的安全大坑，因为以前我们用render去处理$data时，是在服务器端渲染的；而现在API和Web统一后，很多信息会通过JSON显示出来。类似对User表SELECT *，然后把密码吐出来这种事千万不要去做。
+
+#### 模板目录
+
+##### 目录变更
+模板目录还是view，但下边直接就是具体的Layout类型了，去掉了之前多余的layout目录。
+
+##### 模板文件路径和扩展名变更
+- 模板文件名从原来的 ```$controller/$action.tpl.html ``` ，改成了 ```$controller_$action.tpl.php``` ，主要是为了减少目录层级。
+- 注意模板文件后缀从 ```*.tpl.html``` 改为了 ```*.tpl.php``` ，主要是为了代码高亮和防泄漏。
+
+##### 静态文件目录变更
+静态文件从static目录改放到了assets目录。
+
+##### 模板内的数组格式变更 
+因为使用模板直接渲染JSON对应的格式，所以多了一个data的维度。举个例子：
+之前
+
+``` 
+$data['title'] = 'hi';
+render( $data );
+```
+
+在模板里边直接用 $title就好。
+
+现在
+
+``` 
+$data['title'] = 'hi';
+send_result( $data );
+```
+
+在模板里边需要写成 $data['title']。因为send_result函数里，我们又包了一层：
+
+```
+function send_result( $data , $force_json = false )
+{
+    $ret['code'] = 0 ;
+    $ret['message'] = '' ;
+    $ret['data'] = $data ;
+    
+    if( is_json_request() || $force_json )
+        return send_json( $ret );
+    elseif( is_ajax_request() )
+        return render_ajax( $ret , 'default' );
+    else 
+        return render_web( $ret , 'default' );
+}
+```
+
+
+##### 其他调整
+
+- 默认的Web布局从原来的两栏改为单栏。
+- 更新Bootstrap到最新稳定版本3.3，同时还内置了Start Bootstrap的 ```Stylish Portfolio``` 模板，它是一个带侧栏菜单的Responsive模板，如果是给APP做Landing Page基本上直接改文字就可以了。
+- 当然，国外的模板直接用不了的，所以还接地气的对CDN做了本土化，顺手把默认的背景图换成萌妹子了。
+
+![](http://ww2.sinaimg.cn/large/40dfde6fjw1exdh5w35z7j20ay0ea41g.jpg)
+
+

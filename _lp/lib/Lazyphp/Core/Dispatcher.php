@@ -45,7 +45,9 @@ class Dispatcher
     public static function invokeMethod($func, array &$params = array())
     {
         list($class, $method) = $func;
-        $GLOBALS['__METHOD__'] = $method;
+        $cname = last( explode( "\\" , $class ) );
+        $GLOBALS['c'] = rremove( $cname , 'Controller');
+        $GLOBALS['a'] = $GLOBALS['__METHOD__']  = $method;
         $instance = new $class();
 
         $key = cmkey( $class, $method );
