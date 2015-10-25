@@ -17,7 +17,6 @@ class LazyphpController
      */
     public function index()
     {
-        //print_r( $GLOBALS );
         $data['title'] = $data['top_title'] = 'Version 4.5';
         send_result( $data );
     }

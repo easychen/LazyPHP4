@@ -43,7 +43,14 @@ try
 {
     $error = get_error( 'DATABASE' ); 
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
-    send_json($error);
+
+    if( is_json_request() )
+        send_json( $error );
+    elseif( is_ajax_request() )
+        render_ajax( $error , 'info' );
+    else 
+        render_web( $error , 'info' );
+
 }
 catch(\Lazyphp\Core\RestException $e)
 {
@@ -53,17 +60,28 @@ catch(\Lazyphp\Core\RestException $e)
     
     $error = get_error( $prefix ); 
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
-    send_json($error);
+    
+    if( is_json_request() )
+        send_json( $error );
+    elseif( is_ajax_request() )
+        render_ajax( $error , 'info' );
+    else 
+        render_web( $error , 'info' );
 
 }
 catch(\Exception $e)
 {
-    // alway send json format
     $class_array = explode( '\\' , get_class( $e ) );
     $class = t(end( $class_array ));
     $prefix = strtoupper(rremove( $class , 'Exception' ));
 
     $error = get_error( $prefix );
     $error['message'] = $error['message']  . '- ' .$e->getMessage();
-    send_json($error);
+    
+    if( is_json_request() )
+        send_json( $error );
+    elseif( is_ajax_request() )
+        render_ajax( $error , 'info' );
+    else 
+        render_web( $error , 'info' );
 }
