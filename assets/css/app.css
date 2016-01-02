@@ -1,3 +1,12 @@
+body {
+    font-family: "Helvetica Neue",Helvetica,"Hiragino Sans GB","STHeitiSC-Light","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+
+.nav-main-header a 
+{
+	font-weight: normal;
+}
+
 .notice-box
 {
 	padding:10%;

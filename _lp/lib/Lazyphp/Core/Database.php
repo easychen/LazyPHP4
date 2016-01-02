@@ -23,9 +23,9 @@ class Database extends Object
             $this->pdo = new PDO( $dsn , $user , $password );
         }
 
-        if( is_devmode() )
+        if( is_devmode() || c('allow_pdo_exception') )
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+        
         $this->pdo->exec("SET NAMES 'utf8';");
     }
 
@@ -118,7 +118,7 @@ class Database extends Object
             }
             else
             {
-                $this->result = $this->pdo->exec( $sql );
+                $this->result = $this->pdo->exec( $sql );    
             }
 
             //print_r( $this->result );

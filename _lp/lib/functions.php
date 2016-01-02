@@ -98,6 +98,11 @@ function run_sql( $sql )
     return db()->runSql( $sql );
 }
 
+function last_id()
+{
+    return db()->lastId();
+}
+
 function get_bind_params( $sql )
 {
     $reg = '/:([a-z_][0-9a-z_]*)/is';
@@ -853,7 +858,7 @@ function is_ajax_request()
 function is_json_request()
 {
     $headers = apache_request_headers();
-    return (isset( $headers['Content-Type'] ) && ( strtolower($headers['Content-Type']) == 'application/json' ));
+    return (isset( $headers['LP4-Request-Type'] ) && ( strtolower($headers['LP4-Request-Type']) == 'json' ));
 }
 
 // == 响应相关函数 ==========================
@@ -867,9 +872,16 @@ function response()
 
 function send_json( $obj )
 {
+    $header['Content-Type'] = 'application/json';
+    $header['Access-Control-Allow-Origin'] = '*';
+
+    //var_dump(response()
+    //    ->status(200)
+    //    ->header($header));
+
     response()
         ->status(200)
-        ->header('Content-Type', 'application/json')
+        ->header($header)
         ->write(json_encode( $obj ))
         ->send();
 }
@@ -879,13 +891,23 @@ function send_result( $data , $force_json = false )
     $ret['code'] = 0 ;
     $ret['message'] = '' ;
     $ret['data'] = $data ;
+    $ret['created'] = date("Y-m-d H:i:s");
     
-    if( is_json_request() || $force_json )
+    if( is_json_request() || $force_json || c('api_server_only') )
         return send_json( $ret );
     elseif( is_ajax_request() )
         return render_ajax( $ret , 'default' );
     else 
         return render_web( $ret , 'default' );
+}
+
+function render_json( $data )
+{
+    $ret['code'] = 0 ;
+    $ret['message'] = '' ;
+    $ret['data'] = $data ;
+    $ret['created'] = date("Y-m-d H:i:s");
+    return send_json( $ret );
 }
 
 function render_ajax( $data , $sharp = 'default' )
@@ -933,20 +955,22 @@ function render( $data , $layout = null ,  $sharp = 'default' )
 function send_error( $type , $info = null , $force_json = false )
 {
     
-    if($error = get_error( $type ))
+    if( $type == null )
+    {
+         $error['message'] = $info;
+    }
+    elseif($error = get_error( $type ))
     {
         if( $info != null )
             $error['message'] = $error['message'].' -' . $info ;
     }
-    else
-    {
-        $error['message'] = $info;
-    }
+
+    $error['created'] = date("Y-m-d H:i:s");
         
    //print_r( $error );
 
     //send_json($error);
-    if( is_json_request() || $force_json )
+    if( is_json_request() || $force_json || c('api_server_only')  )
         return send_json( $error );
     elseif( is_ajax_request() )
         return render_ajax( $error , 'info' );

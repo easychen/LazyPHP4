@@ -101,12 +101,15 @@ class Dispatcher
                                     else
                                         $vv = v($item['name']); // 按名字从REQUEST中获取
 
-                                    //echo $item['name'] .'s vv=' . $vv;
-
-                                    if(!call_user_func( $check_function , $vv ) )
+                                    $ret = call_user_func( $check_function , $vv );
+                                    if( !$ret )
                                     {
                                         // 抛出异常
-                                        throw new InputException($item['cnname']."(" . $item['name'] . ")未提供或格式不正确 via ".$check_function);
+                                        if( is_devmode() )
+                                        throw new InputException($item['cnname']."(" . $item['name'] . ")未提供或格式不正确 via ".$check_function." return $ret");
+                                        else
+                                            throw new InputException($item['cnname']."(" . $item['name'] . ")未提供或格式不正确");
+
                                     }
                                 }
 

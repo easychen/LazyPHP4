@@ -26,10 +26,10 @@ else
     (
         'adapter' => 'mysql',
         'host' => 'localhost',
-        'name' => '*',
+        'name' => c('site_db'),
         'user' => 'root',
-        'password' => '',
-        'port' => 3306,
+        'password' => 'root',
+        'port' => 8889,
         'charset' => 'utf8'
     );
 
@@ -45,10 +45,10 @@ $GLOBALS['lpconfig']['database_dev'] = array
     (
         'adapter' => 'mysql',
         'host' => 'localhost',
-        'name' => '*',
+        'name' => c('site_db'),
         'user' => 'root',
-        'password' => '',
-        'port' => 3306,
+        'password' => 'root',
+        'port' => 8889,
         'charset' => 'utf8'
     );
 
