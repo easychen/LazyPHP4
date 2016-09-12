@@ -19,5 +19,15 @@
             "Lazyphp\\": "_lp/lib/Lazyphp/",
             "Lazyphp\\Controller\\": "controller/"
         }
+    },
+    "config":
+    {
+        "secure-http":false
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
     }
 }
