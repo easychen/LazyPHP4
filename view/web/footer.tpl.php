@@ -31,10 +31,10 @@
 </footer>
 
 <!-- jQuery first, then Bootstrap JS. -->
-<script src="http://libs.useso.com/js/jquery/2.1.1/jquery.min.js"></script>
+<script src="http://lib.sinaapp.com/js/jquery/2.2.4/jquery-2.2.4.min.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="http://libs.useso.com/js/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="http://lib.sinaapp.com/js/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 
 <?php if( isset($data['js']) && is_array( $data['js'] ) ): ?>
     <?php foreach( $data['js'] as $jfile ): ?><script type="text/javascript" src="/assets/script/<?=$jfile;?>" ></script>
