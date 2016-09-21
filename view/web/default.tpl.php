@@ -6,13 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 	<title><?=$data['title'] . ' | ' . c('site_name');?></title>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="http://libs.useso.com/js/bootstrap/3.2.0/css/bootstrap.min.css"/>
+	
+     <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="http://lib.sinaapp.com/js/bootstrap/3.0.0/css/bootstrap.min.css"/>
 
-    <link rel="stylesheet" href="http://libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css"/>
+    <!-- <link rel="stylesheet" href="http://libs.useso.com/js/font-awesome/4.2.0/css/font-awesome.min.css"/> -->
     <link rel="stylesheet" href="/assets/css/stylish-portfolio.css"/>
     
-    <link href="http://fonts.useso.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css"/>
+    <link href="http://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css"/>
 
 	<link rel="stylesheet" type="text/css" href="/assets/css/app.css"/>
 
