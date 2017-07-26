@@ -10,6 +10,9 @@ define( 'FROOT' , dirname( __FILE__ ) . DS );
 // 设置时区
 @date_default_timezone_set('Asia/Chongqing');
 
+// 设置地区
+setlocale(LC_ALL, 'zh_CN.UTF-8');
+
 
 // 载入composer autoload
 require AROOT . 'vendor' . DS . 'autoload.php';

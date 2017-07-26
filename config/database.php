@@ -1,4 +1,5 @@
 <?php
+// $GLOBALS['lpconfig']['site_db'] = 'ftqq';
 // 兼容SAE
 if( on_sae() )
 {
@@ -25,12 +26,12 @@ else
     $GLOBALS['lpconfig']['database'] = array
     (
         'adapter' => 'mysql',
-        'host' => 'localhost',
+        'host' => '10.9.136.77',
         'name' => c('site_db'),
         'user' => 'root',
-        'password' => 'root',
-        'port' => 8889,
-        'charset' => 'utf8'
+        'password' => 'jYjaWTNemR9f',
+        'port' => 8899,
+        'charset' => 'utf8mb4'
     );
 
     $GLOBALS['lpconfig']['database']['dsn'] = $GLOBALS['lpconfig']['database']['adapter']

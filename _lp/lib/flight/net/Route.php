@@ -40,34 +40,63 @@ class Route {
     public $regex;
 
     /**
+     * @var string URL splat content
+     */
+    public $splat = '';
+
+    /**
+     * @var boolean Pass self in callback parameters
+     */
+    public $pass = false;
+
+    /**
      * Constructor.
      *
      * @param string $pattern URL pattern
      * @param mixed $callback Callback function
      * @param array $methods HTTP methods
+     * @param boolean $pass Pass self in callback parameters
      */
-    public function __construct($pattern, $callback, $methods) {
+    public function __construct($pattern, $callback, $methods, $pass) {
         $this->pattern = $pattern;
         $this->callback = $callback;
         $this->methods = $methods;
+        $this->pass = $pass;
     }
 
     /**
      * Checks if a URL matches the route pattern. Also parses named parameters in the URL.
      *
      * @param string $url Requested URL
+     * @param boolean $case_sensitive Case sensitive matching
      * @return boolean Match status
      */
-    public function matchUrl($url) {
+    public function matchUrl($url, $case_sensitive = false) {
+        // Wildcard or exact match
         if ($this->pattern === '*' || $this->pattern === $url) {
             return true;
         }
 
         $ids = array();
-        $char = substr($this->pattern, -1);
-        $this->pattern = str_replace(array(')','*'), array(')?','.*?'), $this->pattern);
+        $last_char = substr($this->pattern, -1);
+
+        // Get splat
+        if ($last_char === '*') {
+            $n = 0;
+            $len = strlen($url);
+            $count = substr_count($this->pattern, '/');
+
+            for ($i = 0; $i < $len; $i++) {
+                if ($url[$i] == '/') $n++;
+                if ($n == $count) break;
+            }
+
+            $this->splat = (string)substr($url, $i+1);
+        }
 
         // Build the regex for matching
+        $regex = str_replace(array(')','/*'), array(')?','(/?|/.*?)'), $this->pattern);
+
         $regex = preg_replace_callback(
             '#@([\w]+)(:([^/\(\)]*))?#',
             function($matches) use (&$ids) {
@@ -77,11 +106,11 @@ class Route {
                 }
                 return '(?P<'.$matches[1].'>[^/\?]+)';
             },
-            $this->pattern
+            $regex
         );
 
         // Fix trailing slash
-        if ($char === '/') {
+        if ($last_char === '/') {
             $regex .= '?';
         }
         // Allow trailing slash
@@ -90,7 +119,7 @@ class Route {
         }
 
         // Attempt to match route and named parameters
-        if (preg_match('#^'.$regex.'(?:\?.*)?$#i', $url, $matches)) {
+        if (preg_match('#^'.$regex.'(?:\?.*)?$#'.(($case_sensitive) ? '' : 'i'), $url, $matches)) {
             foreach ($ids as $k => $v) {
                 $this->params[$k] = (array_key_exists($k, $matches)) ? urldecode($matches[$k]) : null;
             }

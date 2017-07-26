@@ -22,11 +22,18 @@ class Router {
     protected $routes = array();
 
     /**
-     * Pointer to current route
+     * Pointer to current route.
      *
      * @var int
      */
     protected $index = 0;
+
+    /**
+     * Case sensitive matching.
+     *
+     * @var boolean
+     */
+    public $case_sensitive = false;
 
     /**
      * Gets mapped routes.
@@ -38,7 +45,7 @@ class Router {
     }
 
     /**
-     * Clears all routes the router.
+     * Clears all routes in the router.
      */
     public function clear() {
         $this->routes = array();
@@ -49,29 +56,30 @@ class Router {
      *
      * @param string $pattern URL pattern to match
      * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
      */
-    public function map($pattern, $callback) {
+    public function map($pattern, $callback, $pass_route = false) {
+        $url = $pattern;
+        $methods = array('*');
+
         if (strpos($pattern, ' ') !== false) {
             list($method, $url) = explode(' ', trim($pattern), 2);
 
             $methods = explode('|', $method);
+        }
 
-            array_push($this->routes, new Route($url, $callback, $methods));
-        }
-        else {
-            array_push($this->routes, new Route($pattern, $callback, array('*')));
-        }
+        $this->routes[] = new Route($url, $callback, $methods, $pass_route);
     }
 
     /**
      * Routes the current request.
      *
      * @param Request $request Request object
-     * @return Route Matching route
+     * @return Route|bool Matching route or false if no match
      */
     public function route(Request $request) {
         while ($route = $this->current()) {
-            if ($route !== false && $route->matchMethod($request->method) && $route->matchUrl($request->url)) {
+            if ($route !== false && $route->matchMethod($request->method) && $route->matchUrl($request->url, $this->case_sensitive)) {
                 return $route;
             }
             $this->next();

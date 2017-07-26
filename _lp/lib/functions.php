@@ -874,6 +874,8 @@ function send_json( $obj )
 {
     $header['Content-Type'] = 'application/json';
     $header['Access-Control-Allow-Origin'] = '*';
+    $header['Access-Control-Allow-Headers'] = 'origin, x-requested-with, content-type';
+    $header['Access-Control-Allow-Methods'] = 'PUT, GET, POST, DELETE, OPTIONS';
 
     //var_dump(response()
     //    ->status(200)
@@ -882,11 +884,11 @@ function send_json( $obj )
     response()
         ->status(200)
         ->header($header)
-        ->write(json_encode( $obj ))
+        ->write(json_encode( $obj , JSON_UNESCAPED_UNICODE ))
         ->send();
 }
 
-function send_result( $data , $force_json = false )
+function send_result( $data , $force_json = true )
 {
     $ret['code'] = 0 ;
     $ret['message'] = '' ;

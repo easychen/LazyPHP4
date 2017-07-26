@@ -1,0 +1,46 @@
+body {
+    font-family: "Helvetica Neue",Helvetica,"Hiragino Sans GB","STHeitiSC-Light","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+
+.nav-main-header a 
+{
+	font-weight: normal;
+}
+
+.notice-box
+{
+	padding:10%;
+	text-align: center;
+	line-height: 200%;
+}
+
+#zhijia_form
+{
+	max-width: 400px;
+	margin-right: auto;
+	margin-left: auto;
+
+
+}
+
+#zhijia_form .form-control
+{
+	max-width: 200px;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+#zhijia_form .btn
+{
+	width: 200px;
+}
+
+.zlogin
+{
+	padding: 20px;
+}
+
+.zlogin img
+{
+	margin:20px;
+}

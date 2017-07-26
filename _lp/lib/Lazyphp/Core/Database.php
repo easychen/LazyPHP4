@@ -26,7 +26,7 @@ class Database extends Object
         if( is_devmode() || c('allow_pdo_exception') )
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         
-        $this->pdo->exec("SET NAMES 'utf8';");
+        $this->pdo->exec("SET NAMES 'utf8mb4';");
     }
 
     // get data to result set

@@ -5,12 +5,23 @@
     },
     "require-dev":     
     {      
-        "behat/behat": "2.4.*@stable",     
-        "behat/mink": "1.4@stable",        
-        "behat/mink-extension": "*",       
-        "behat/mink-goutte-driver": "1.0.*@dev",       
+        "behat/behat": "@stable",     
+        "behat/mink": "@stable",        
+        "behat/mink-extension": "@stable",       
+        "behat/mink-goutte-driver": "@stable",       
         "crada/php-apidoc": "@dev",     
-        "robmorgan/phinx": "*"     
+        "robmorgan/phinx": "@stable",     
+        "phing/phing": "@stable",     
+        "phpunit/phpunit": "@stable",     
+        "phpdocumentor/phpdocumentor": "@stable",     
+        "sebastian/phpcpd": "@stable",     
+        "phpmd/phpmd": "@stable",     
+        "pdepend/pdepend": "@stable",     
+        "phploc/phploc": "@stable",     
+        "pear/versioncontrol_git": "@dev",  
+        "pear/archive_tar": "@stable",     
+        "tedivm/jshrink": "@stable",     
+        "phpunit/php-invoker": "@stable"
     },
     "autoload":
     {

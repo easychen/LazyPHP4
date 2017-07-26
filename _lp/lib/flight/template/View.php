@@ -15,11 +15,18 @@ namespace flight\template;
  */
 class View {
     /**
-     * Locaton of view templates.
+     * Location of view templates.
      *
      * @var string
      */
     public $path;
+
+    /**
+     * File extension.
+     *
+     * @var string
+     */
+    public $extension = '.php';
 
     /**
      * View variables.
@@ -27,6 +34,13 @@ class View {
      * @var array
      */
     protected $vars = array();
+
+    /**
+     * Template file.
+     *
+     * @var string
+     */
+    private $template;
 
     /**
      * Constructor.
@@ -96,10 +110,10 @@ class View {
      * @throws \Exception If template not found
      */
     public function render($file, $data = null) {
-        $template = $this->getTemplate($file);
+        $this->template = $this->getTemplate($file);
 
-        if (!file_exists($template)) {
-            throw new \Exception("Template file not found: $template.");
+        if (!file_exists($this->template)) {
+            throw new \Exception("Template file not found: {$this->template}.");
         }
 
         if (is_array($data)) {
@@ -108,7 +122,7 @@ class View {
 
         extract($this->vars);
 
-        include $template;
+        include $this->template;
     }
 
     /**
@@ -122,9 +136,7 @@ class View {
         ob_start();
 
         $this->render($file, $data);
-        $output = ob_get_contents();
-
-        ob_end_clean();
+        $output = ob_get_clean();
 
         return $output;
     }
@@ -146,9 +158,16 @@ class View {
      * @return string Template file location
      */
     public function getTemplate($file) {
-        if ((substr($file, -4) != '.php')) {
-            $file .= '.php';
+        $ext = $this->extension;
+
+        if (!empty($ext) && (substr($file, -1 * strlen($ext)) != $ext)) {
+            $file .= $ext;
         }
+
+        if ((substr($file, 0, 1) == '/')) {
+            return $file;
+        }
+        
         return $this->path.'/'.$file;
     }
 
