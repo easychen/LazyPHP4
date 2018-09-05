@@ -5,7 +5,7 @@ use \PDO as PDO;
 
 // Based on  Aura.Sql_Schema
 // Rewrite for adding comment field 
-class Datameta extends Object
+class Datameta extends LpObject
 {
     public function __construct( $pdo )
     {

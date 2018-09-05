@@ -14,7 +14,7 @@ namespace Lazyphp\Core;
  *  $member->findNameByNothing()->col('name');
  *  $member->findNameByNothingLimit(array(2,5))->col('name'); 
  */
-class Ldo extends Object
+class Ldo extends LpObject
 {
     public function __construct( $table )
     {

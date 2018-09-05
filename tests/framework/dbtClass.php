@@ -5,7 +5,8 @@ class Lazyphp_Database_TestCase extends PHPUnit_Extensions_Database_TestCase
 {
     public static function setUpBeforeClass()
     {
-        //echo c('database_dev','dsn');
+        return true;
+
         $pdo = new PDO(c('database_dev','dsn'),c('database_dev','user'),c('database_dev','password'));
         $db =  new \Lazyphp\Core\Database($pdo);
         

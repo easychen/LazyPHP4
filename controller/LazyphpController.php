@@ -17,6 +17,9 @@ class LazyphpController
      */
     public function index()
     {
+        //return lp_throw( "UNKNOW" , "1233" );
+        //return send_result( db()->getData("SHOW TABLES ")->toArray() );
+        
         $data['title'] = $data['top_title'] = 'Version 4.5';
         return send_result( $data );
     }

@@ -98,11 +98,6 @@ function run_sql( $sql )
     return db()->runSql( $sql );
 }
 
-function last_id()
-{
-    return db()->lastId();
-}
-
 function get_bind_params( $sql )
 {
     $reg = '/:([a-z_][0-9a-z_]*)/is';
@@ -831,12 +826,11 @@ if (!function_exists('apache_request_headers'))
 {
     function apache_request_headers()
     {
-        foreach( $_SERVER as $key => $value )
+        foreach($_SERVER as $key=>$value)
         {
-            if ( substr($key,0,5)=="HTTP_" )
+            if (substr($key,0,5)=="HTTP_")
             {
-                $key = str_replace( " " , "-" , ucwords( strtolower( str_replace( "_" , " " , substr( $key , 5 ) ))));
-
+                $key=str_replace(" ","-",ucwords(strtolower(str_replace("_"," ",substr($key,5)))));
                 $out[$key]=$value;
             }
             else
@@ -852,13 +846,13 @@ if (!function_exists('apache_request_headers'))
 function is_ajax_request()
 {
     $headers = apache_request_headers();
-    return (isset( $headers['X-Requested-With'] ) && ( strtolower($headers['X-Requested-With']) == strtolower('XMLHttpRequest') )) || (isset( $headers['x-requested-with'] ) && (strtolower($headers['x-requested-with']) == strtolower('XMLHttpRequest') ));
+    return (isset( $headers['X-Requested-With'] ) && ( $headers['X-Requested-With'] == 'XMLHttpRequest' )) || (isset( $headers['x-requested-with'] ) && ($headers['x-requested-with'] == 'XMLHttpRequest' ));
 }
 
 function is_json_request()
 {
     $headers = apache_request_headers();
-    return (isset( $headers['LP4-Request-Type'] ) && ( strtolower($headers['LP4-Request-Type']) == 'json' ));
+    return (isset( $headers['Content-Type'] ) && ( clean_header($headers['Content-Type']) == 'application/json' ));
 }
 
 // == 响应相关函数 ==========================
@@ -872,110 +866,29 @@ function response()
 
 function send_json( $obj )
 {
-    $header['Content-Type'] = 'application/json';
-    $header['Access-Control-Allow-Origin'] = '*';
-
-    //var_dump(response()
-    //    ->status(200)
-    //    ->header($header));
-
     response()
         ->status(200)
-        ->header($header)
+        ->header('Content-Type', 'application/json')
         ->write(json_encode( $obj ))
         ->send();
 }
 
-function send_result( $data , $force_json = false )
+function send_result( $data )
 {
     $ret['code'] = 0 ;
     $ret['message'] = '' ;
     $ret['data'] = $data ;
-    $ret['created'] = date("Y-m-d H:i:s");
-    
-    if( is_json_request() || $force_json || c('api_server_only') )
-        return send_json( $ret );
-    elseif( is_ajax_request() )
-        return render_ajax( $ret , 'default' );
-    else 
-        return render_web( $ret , 'default' );
-}
-
-function render_json( $data )
-{
-    $ret['code'] = 0 ;
-    $ret['message'] = '' ;
-    $ret['data'] = $data ;
-    $ret['created'] = date("Y-m-d H:i:s");
-    return send_json( $ret );
-}
-
-function render_ajax( $data , $sharp = 'default' )
-{
-    return render( $data , 'ajax' , $sharp );
+    send_json( $ret );
 }
 
 
-function render_web( $data , $sharp = 'default' )
+function send_error( $type , $info = null )
 {
-    return render( $data , 'web' , $sharp );
-}
+    $error = get_error( $type );
+    if( $info != null )
+        $error['message'] = $error['message'].' -' . $info ;
 
-function render( $data , $layout = null ,  $sharp = 'default' )
-{
-    
-    if( $layout == null )
-    {
-        if( is_ajax_request() )
-            $layout = 'ajax';
-        else
-            $layout = 'web';
-    }
-
-    $GLOBALS['layout'] = $layout;
-    $GLOBALS['sharp'] = $sharp;
-    
-    $layout_file = AROOT . 'view' . DS . $layout . DS . $sharp . '.tpl.php';
-
-    if( file_exists( $layout_file ) )
-    {
-        @extract( $data );
-        return require( $layout_file );
-    }
-    else
-    {
-        // 模板文件不存在
-        return send_error( 'TMPLATE' , 'file ' . $layout_file . ' not exists ' , true );
-    }
-
-}
-
-
-
-function send_error( $type , $info = null , $force_json = false )
-{
-    
-    if( $type == null )
-    {
-         $error['message'] = $info;
-    }
-    elseif($error = get_error( $type ))
-    {
-        if( $info != null )
-            $error['message'] = $error['message'].' -' . $info ;
-    }
-
-    $error['created'] = date("Y-m-d H:i:s");
-        
-   //print_r( $error );
-
-    //send_json($error);
-    if( is_json_request() || $force_json || c('api_server_only')  )
-        return send_json( $error );
-    elseif( is_ajax_request() )
-        return render_ajax( $error , 'info' );
-    else 
-        return render_web( $error , 'info' );
+    send_json($error);
 }
 
 
@@ -989,3 +902,9 @@ function get_error( $type )
     return $error;
 }
 
+// == REST错误类型定义和Exception元数据 ==========================
+$GLOBALS['rest_errors']['ROUTE'] = array( 'code' => '10000' , 'message' => 'route error' );
+$GLOBALS['rest_errors']['INPUT'] = array( 'code' => '10001' , 'message' => 'input error' );
+$GLOBALS['rest_errors']['DATABASE'] = array( 'code' => '30001' , 'message' => 'database error' );
+$GLOBALS['rest_errors']['DATA'] = array( 'code' => '40001' , 'message' => 'data error' );
+$GLOBALS['rest_errors']['AUTH'] = array( 'code' => '20001' , 'message' => 'auth error' );

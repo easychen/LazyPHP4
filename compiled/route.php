@@ -6,8 +6,6 @@ Class InputException extends \Lazyphp\Core\RestException {}
 Class DatabaseException extends \Lazyphp\Core\RestException {}
 Class DataException extends \Lazyphp\Core\RestException {}
 Class AuthException extends \Lazyphp\Core\RestException {}
-Class TmplateException extends \Lazyphp\Core\RestException {}
-Class RpwtException extends \Lazyphp\Core\RestException {}
 }
 namespace{
 $GLOBALS['meta'] = array (

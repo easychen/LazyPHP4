@@ -2,7 +2,7 @@
 namespace Lazyphp\Core;
 use \PDO as PDO;
 
-class Database extends Object
+class Database extends LpObject
 {
     var $result = false;
 
@@ -23,10 +23,10 @@ class Database extends Object
             $this->pdo = new PDO( $dsn , $user , $password );
         }
 
-        if( is_devmode() || c('allow_pdo_exception') )
+        if( is_devmode() )
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        
-        $this->pdo->exec("SET NAMES 'utf8';");
+
+        $this->pdo->exec("SET NAMES 'utf8mb4';");
     }
 
     // get data to result set
@@ -118,7 +118,7 @@ class Database extends Object
             }
             else
             {
-                $this->result = $this->pdo->exec( $sql );    
+                $this->result = $this->pdo->exec( $sql );
             }
 
             //print_r( $this->result );
