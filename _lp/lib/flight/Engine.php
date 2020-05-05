@@ -15,6 +15,33 @@ use flight\core\Dispatcher;
  * The Engine class contains the core functionality of the framework.
  * It is responsible for loading an HTTP request, running the assigned services,
  * and generating an HTTP response.
+ *
+ * Core methods
+ * @method void start() Starts engine
+ * @method void stop() Stops framework and outputs current response
+ * @method void halt(int $code = 200, string $message = '') Stops processing and returns a given response.
+ *
+ *
+ * Routing
+ * @method void route(string $pattern, callable $callback, bool $pass_route = false) Routes a URL to a callback function.
+ * @method \flight\net\Router router() Gets router
+ *
+ * Views
+ * @method void render(string $file, array $data = null, string $key = null) Renders template
+ * @method \flight\template\View view() Gets current view
+ *
+ * Request-response
+ * @method \flight\net\Request request() Gets current request
+ * @method \flight\net\Response response() Gets current response
+ * @method void error(\Exception $e) Sends an HTTP 500 response for any errors.
+ * @method void notFound() Sends an HTTP 404 response when a URL is not found.
+ * @method void redirect(string $url, int $code = 303)  Redirects the current request to another URL.
+ * @method void json(mixed $data, int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSON response.
+ * @method void jsonp(mixed $data, string $param = 'jsonp', int $code = 200, bool $encode = true, string $charset = 'utf-8', int $option = 0) Sends a JSONP response.
+ *
+ * HTTP caching
+ * @method void etag($id, string $type = 'strong') Handles ETag HTTP caching.
+ * @method void lastModified(int $time) Handles last modified HTTP caching.
  */
 class Engine {
     /**
@@ -27,14 +54,14 @@ class Engine {
     /**
      * Class loader.
      *
-     * @var object
+     * @var Loader
      */
     protected $loader;
 
     /**
      * Event dispatcher.
      *
-     * @var object
+     * @var Dispatcher
      */
     protected $dispatcher;
 
@@ -55,12 +82,18 @@ class Engine {
      *
      * @param string $name Method name
      * @param array $params Method parameters
+     * @return mixed Callback results
+     * @throws \Exception
      */
     public function __call($name, $params) {
         $callback = $this->dispatcher->get($name);
 
         if (is_callable($callback)) {
             return $this->dispatcher->run($name, $params);
+        }
+
+        if (!$this->loader->get($name)) {
+            throw new \Exception("{$name} must be a mapped method.");
         }
 
         $shared = (!empty($params)) ? (bool)$params[0] : true;
@@ -89,12 +122,13 @@ class Engine {
         $this->loader->register('router', '\flight\net\Router');
         $this->loader->register('view', '\flight\template\View', array(), function($view) use ($self) {
             $view->path = $self->get('flight.views.path');
+            $view->extension = $self->get('flight.views.extension');
         });
 
         // Register framework methods
         $methods = array(
             'start','stop','route','halt','error','notFound',
-            'render','redirect','etag','lastModified','json'
+            'render','redirect','etag','lastModified','json','jsonp'
         );
         foreach ($methods as $name) {
             $this->dispatcher->set($name, array($this, '_'.$name));
@@ -102,28 +136,25 @@ class Engine {
 
         // Default configuration settings
         $this->set('flight.base_url', null);
+        $this->set('flight.case_sensitive', false);
         $this->set('flight.handle_errors', true);
         $this->set('flight.log_errors', false);
         $this->set('flight.views.path', './views');
+        $this->set('flight.views.extension', '.php');
+
+        // Startup configuration
+        $this->before('start', function() use ($self) {
+            // Enable error handling
+            if ($self->get('flight.handle_errors')) {
+                set_error_handler(array($self, 'handleError'));
+                set_exception_handler(array($self, 'handleException'));
+            }
+
+            // Set case-sensitivity
+            $self->router()->case_sensitive = $self->get('flight.case_sensitive');
+        });
 
         $initialized = true;
-    }
-
-    /**
-     * Enables/disables custom error handling.
-     *
-     * @param bool $enabled True or false
-     */
-    public function handleErrors($enabled)
-    {
-        if ($enabled) {
-            set_error_handler(array($this, 'handleError'));
-            set_exception_handler(array($this, 'handleException'));
-        }
-        else {
-            restore_error_handler();
-            restore_exception_handler();
-        }
     }
 
     /**
@@ -146,7 +177,7 @@ class Engine {
      *
      * @param \Exception $e Thrown exception
      */
-    public function handleException(\Exception $e) {
+    public function handleException($e) {
         if ($this->get('flight.log_errors')) {
             error_log($e->getMessage());
         }
@@ -212,7 +243,9 @@ class Engine {
      * @param string $key Key
      * @return mixed
      */
-    public function get($key) {
+    public function get($key = null) {
+        if ($key === null) return $this->vars;
+
         return isset($this->vars[$key]) ? $this->vars[$key] : null;
     }
 
@@ -270,33 +303,38 @@ class Engine {
 
     /**
      * Starts the framework.
+     * @throws \Exception
      */
     public function _start() {
         $dispatched = false;
+        $self = $this;
+        $request = $this->request();
+        $response = $this->response();
+        $router = $this->router();
+
+        // Allow filters to run
+        $this->after('start', function() use ($self) {
+            $self->stop();
+        });
 
         // Flush any existing output
         if (ob_get_length() > 0) {
-            $this->response()->write(ob_get_contents());
+            $response->write(ob_get_clean());
         }
 
         // Enable output buffering
         ob_start();
 
-        // Enable error handling
-        $this->handleErrors($this->get('flight.handle_errors'));
-
-        // Disable caching for AJAX requests
-        if ($this->request()->ajax) {
-            $this->response()->cache(false);
-        }
-
-        // Allow post-filters to run
-        $this->after('start', array($this, 'stop'));
-
         // Route the request
-        while ($route = $this->router()->route($this->request())) {
+        while ($route = $router->route($request)) {
             $params = array_values($route->params);
 
+            // Add route info to the parameter list
+            if ($route->pass) {
+                $params[] = $route;
+            }
+
+            // Call route handler
             $continue = $this->dispatcher->execute(
                 $route->callback,
                 $params
@@ -306,7 +344,9 @@ class Engine {
 
             if (!$continue) break;
 
-            $this->router()->next();
+            $router->next();
+
+            $dispatched = false;
         }
 
         if (!$dispatched) {
@@ -316,11 +356,33 @@ class Engine {
 
     /**
      * Stops the framework and outputs the current response.
+     *
+     * @param int $code HTTP status code
+     * @throws \Exception
      */
-    public function _stop() {
-        $this->response()
-            ->write(ob_get_clean())
-            ->send();
+    public function _stop($code = null) {
+        $response = $this->response();
+
+        if (!$response->sent()) {
+            if ($code !== null) {
+                $response->status($code);
+            }
+
+            $response->write(ob_get_clean());
+
+            $response->send();
+        }
+    }
+
+    /**
+     * Routes a URL to a callback function.
+     *
+     * @param string $pattern URL pattern to match
+     * @param callback $callback Callback function
+     * @param boolean $pass_route Pass the matching route object to the callback
+     */
+    public function _route($pattern, $callback, $pass_route = false) {
+        $this->router()->map($pattern, $callback, $pass_route);
     }
 
     /**
@@ -330,18 +392,20 @@ class Engine {
      * @param string $message Response message
      */
     public function _halt($code = 200, $message = '') {
-        $this->response(false)
+        $this->response()
+            ->clear()
             ->status($code)
             ->write($message)
             ->send();
+        exit();
     }
 
     /**
      * Sends an HTTP 500 response for any errors.
      *
-     * @param \Exception Thrown exception
+     * @param \Exception|\Throwable $e Thrown exception
      */
-    public function _error(\Exception $e) {
+    public function _error($e) {
         $msg = sprintf('<h1>500 Internal Server Error</h1>'.
             '<h3>%s (%s)</h3>'.
             '<pre>%s</pre>',
@@ -351,12 +415,15 @@ class Engine {
         );
 
         try {
-            $this->response(false)
+            $this->response()
+                ->clear()
                 ->status(500)
                 ->write($msg)
                 ->send();
         }
-        catch (\Exception $ex) {
+        catch (\Throwable $t) { // PHP 7.0+
+            exit($msg);
+        } catch(\Exception $e) { // PHP < 7
             exit($msg);
         }
     }
@@ -365,7 +432,8 @@ class Engine {
      * Sends an HTTP 404 response when a URL is not found.
      */
     public function _notFound() {
-        $this->response(false)
+        $this->response()
+            ->clear()
             ->status(404)
             ->write(
                 '<h1>404 Not Found</h1>'.
@@ -373,16 +441,6 @@ class Engine {
                 str_repeat(' ', 512)
             )
             ->send();
-    }
-
-    /**
-     * Routes a URL to a callback function.
-     *
-     * @param string $pattern URL pattern to match
-     * @param callback $callback Callback function
-     */
-    public function _route($pattern, $callback) {
-        $this->router()->map($pattern, $callback);
     }
 
     /**
@@ -398,15 +456,15 @@ class Engine {
             $base = $this->request()->base;
         }
 
-        // Append base to relative urls
-        if ($base != '/' && $url[0] != '/' && strpos($url, '://') === false) {
-            $url = $base.'/'.$url;
+        // Append base url to redirect url
+        if ($base != '/' && strpos($url, '://') === false) {
+            $url = $base . preg_replace('#/+#', '/', '/' . $url);
         }
 
-        $this->response(false)
+        $this->response()
+            ->clear()
             ->status($code)
             ->header('Location', $url)
-            ->write($url)
             ->send();
     }
 
@@ -416,6 +474,7 @@ class Engine {
      * @param string $file Template file
      * @param array $data Template data
      * @param string $key View variable name
+     * @throws \Exception
      */
     public function _render($file, $data = null, $key = null) {
         if ($key !== null) {
@@ -429,13 +488,56 @@ class Engine {
     /**
      * Sends a JSON response.
      *
-     * @param mixed $data Data to JSON encode
+     * @param mixed $data JSON data
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
+     * @param string $charset Charset
+     * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
+     * @throws \Exception
      */
-    public function _json($data) {
+    public function _json(
+        $data,
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $option = 0
+    ) {
+        $json = ($encode) ? json_encode($data, $option) : $data;
+
         $this->response()
-            ->status(200)
-            ->header('Content-Type', 'application/json')
-            ->write(json_encode($data))
+            ->status($code)
+            ->header('Content-Type', 'application/json; charset='.$charset)
+            ->write($json)
+            ->send();
+    }
+	
+    /**
+     * Sends a JSONP response.
+     *
+     * @param mixed $data JSON data
+     * @param string $param Query parameter that specifies the callback name.
+     * @param int $code HTTP status code
+     * @param bool $encode Whether to perform JSON encoding
+     * @param string $charset Charset
+     * @param int $option Bitmask Json constant such as JSON_HEX_QUOT
+     * @throws \Exception
+     */
+    public function _jsonp(
+        $data,
+        $param = 'jsonp',
+        $code = 200,
+        $encode = true,
+        $charset = 'utf-8',
+        $option = 0
+    ) {
+        $json = ($encode) ? json_encode($data, $option) : $data;
+
+        $callback = $this->request()->query[$param];
+
+        $this->response()
+            ->status($code)
+            ->header('Content-Type', 'application/javascript; charset='.$charset)
+            ->write($callback.'('.$json.');')
             ->send();
     }
 
@@ -450,7 +552,8 @@ class Engine {
 
         $this->response()->header('ETag', $id);
 
-        if ($id === getenv('HTTP_IF_NONE_MATCH')) {
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH']) &&
+            $_SERVER['HTTP_IF_NONE_MATCH'] === $id) {
             $this->halt(304);
         }
     }
@@ -461,9 +564,10 @@ class Engine {
      * @param int $time Unix timestamp
      */
     public function _lastModified($time) {
-        $this->response()->header('Last-Modified', date(DATE_RFC1123, $time));
+        $this->response()->header('Last-Modified', gmdate('D, d M Y H:i:s \G\M\T', $time));
 
-        if ($time === strtotime(getenv('HTTP_IF_MODIFIED_SINCE'))) {
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+            strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) === $time) {
             $this->halt(304);
         }
     }

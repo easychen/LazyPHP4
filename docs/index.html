@@ -7,7 +7,7 @@
     <meta name="description" content="php-apidoc - apid documenation generator">
     <meta name="author" content="Calin Rada">
     <title>php-apidoc v 1.3.4</title>
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@3.1.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style type="text/css">
         body      { padding-top: 70px; margin-bottom: 15px; }
         .tab-pane { padding-top: 10px; }
@@ -126,7 +126,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <h4 class="panel-title">
-            <span class="label label-success">GET</span> <a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne1"> /demo/times</a>
+            <span class="label label-success">GET</span> <a data-toggle="collapse" data-parent="#accordion1" href="#collapseOne1"> /info</a>
         </h4>
     </div>
     <div id="collapseOne1" class="panel-collapse collapse">
@@ -143,6 +143,126 @@
             <div class="tab-content">
 
                 <div class="tab-pane active" id="info1">
+                    系统提示
+                    <hr>
+                    
+                </div><!-- #info -->
+
+                <div class="tab-pane" id="sandbox1">
+                    <div class="row">
+                        <div class="col-md-4">
+                            Parameters
+                            <hr>
+                            
+                        </div>
+                        <div class="col-md-4">
+                            Headers
+                            <hr>Soon...
+                        </div>
+                        <div class="col-md-4">
+                            Response
+                            <hr>
+                            <code id="response1"></code>
+                        </div>
+                    </div>
+                </div><!-- #sandbox -->
+
+                <div class="tab-pane" id="sample1">
+                    <div class="row">
+                        <div class="col-md-12">
+                            
+
+<hr>
+<pre id="sample_response1">{'code': 0,'message': 'success'}</pre>
+                        </div>
+                    </div>
+                </div><!-- #sample -->
+
+            </div><!-- .tab-content -->
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <span class="label label-primary">POST</span> <a data-toggle="collapse" data-parent="#accordion2" href="#collapseOne2"> /postonly</a>
+        </h4>
+    </div>
+    <div id="collapseOne2" class="panel-collapse collapse">
+        <div class="panel-body">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="php-apidoctab2">
+                <li class="active"><a href="#info2" data-toggle="tab">Info</a></li>
+                <li><a href="#sandbox2" data-toggle="tab">Sandbox</a></li>
+                <li><a href="#sample2" data-toggle="tab">Sample output</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <div class="tab-pane active" id="info2">
+                    系统提示
+                    <hr>
+                    
+                </div><!-- #info -->
+
+                <div class="tab-pane" id="sandbox2">
+                    <div class="row">
+                        <div class="col-md-4">
+                            Parameters
+                            <hr>
+                            
+                        </div>
+                        <div class="col-md-4">
+                            Headers
+                            <hr>Soon...
+                        </div>
+                        <div class="col-md-4">
+                            Response
+                            <hr>
+                            <code id="response2"></code>
+                        </div>
+                    </div>
+                </div><!-- #sandbox -->
+
+                <div class="tab-pane" id="sample2">
+                    <div class="row">
+                        <div class="col-md-12">
+                            
+
+<hr>
+<pre id="sample_response2">{'code': 0,'message': 'success'}</pre>
+                        </div>
+                    </div>
+                </div><!-- #sample -->
+
+            </div><!-- .tab-content -->
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">
+            <span class="label label-primary">GET|POST</span> <a data-toggle="collapse" data-parent="#accordion3" href="#collapseOne3"> /demo/times</a>
+        </h4>
+    </div>
+    <div id="collapseOne3" class="panel-collapse collapse">
+        <div class="panel-body">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="php-apidoctab3">
+                <li class="active"><a href="#info3" data-toggle="tab">Info</a></li>
+                <li><a href="#sandbox3" data-toggle="tab">Sandbox</a></li>
+                <li><a href="#sample3" data-toggle="tab">Sample output</a></li>
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+
+                <div class="tab-pane active" id="info3">
                     乘法接口
                     <hr>
                     
@@ -174,13 +294,13 @@
 </table>
                 </div><!-- #info -->
 
-                <div class="tab-pane" id="sandbox1">
+                <div class="tab-pane" id="sandbox3">
                     <div class="row">
                         <div class="col-md-4">
                             Parameters
                             <hr>
                             
-<form enctype="application/x-www-form-urlencoded" role="form" action="/demo/times" method="GET" name="form1" id="form1">
+<form enctype="application/x-www-form-urlencoded" role="form" action="/demo/times" method="GET|POST" name="form3" id="form3">
     
 <div class="form-group">
     <input type="text" class="form-control input-sm" id="first" placeholder="first" name="first">
@@ -189,7 +309,7 @@
 <div class="form-group">
     <input type="text" class="form-control input-sm" id="second" placeholder="second" name="second">
 </div>
-    <button type="submit" class="btn btn-success send" rel="1">Send</button>
+    <button type="submit" class="btn btn-success send" rel="3">Send</button>
 </form>
                         </div>
                         <div class="col-md-4">
@@ -199,18 +319,18 @@
                         <div class="col-md-4">
                             Response
                             <hr>
-                            <code id="response1"></code>
+                            <code id="response3"></code>
                         </div>
                     </div>
                 </div><!-- #sandbox -->
 
-                <div class="tab-pane" id="sample1">
+                <div class="tab-pane" id="sample3">
                     <div class="row">
                         <div class="col-md-12">
                             
 
 <hr>
-<pre id="sample_response1">{'code': 0,'message': 'success'}</pre>
+<pre id="sample_response3">{'code': 0,'message': 'success'}</pre>
                         </div>
                     </div>
                 </div><!-- #sample -->
@@ -224,7 +344,7 @@
 
         <div class="row mt0 footer">
             <div class="col-md-6" align="left">
-                Generated on 2015-10-25, 11:26:48
+                Generated on 2020-05-05, 09:36:37
             </div>
             <div class="col-md-6" align="right">
                 <a href="https://github.com/calinrada/php-apidoc" target="_blank">php-apidoc v 1.3.4</a>
@@ -233,8 +353,8 @@
 
     </div> <!-- /container -->
 
-    <script src="http://libs.useso.com/js/jquery/1.10.2/jquery.min.js"></script>
-    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@1.11.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.1.1/dist/js/bootstrap.min.js"></script>
     <script type="text/javascript">
     function syntaxHighlight(json) {
         if (typeof json != 'string') {

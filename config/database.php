@@ -1,5 +1,5 @@
 <?php
-$GLOBALS['lpconfig']['site_db'] = 'changtoyourdbname';
+$GLOBALS['lpconfig']['site_db'] = 'c2';
 // 兼容SAE
 if( on_sae() )
 {

@@ -83,6 +83,43 @@ $GLOBALS['meta'] = array (
       ),
     ),
   ),
+  'dad1d61c907e5e6cd02b71724c5383e9' => 
+  array (
+    'Description' => 
+    array (
+      0 => 
+      array (
+        'section' => 'Demo',
+        'description' => '系统提示',
+      ),
+    ),
+    'LazyRoute' => 
+    array (
+      0 => 
+      array (
+        'route' => 'POST /postonly',
+        'ApiMethod' => '(type="POST")',
+        'ApiRoute' => '(name="/postonly")',
+      ),
+    ),
+    'Return' => 
+    array (
+      0 => 
+      array (
+        'type' => 'object',
+        'sample' => '{\'code\': 0,\'message\': \'success\'}',
+      ),
+    ),
+    'binding' => false,
+    'route' => 
+    array (
+      0 => 
+      array (
+        'uri' => 'POST /postonly',
+        'params' => false,
+      ),
+    ),
+  ),
   'eb12852dde30c86f2681120ef5001954' => 
   array (
     'Description' => 
@@ -97,8 +134,8 @@ $GLOBALS['meta'] = array (
     array (
       0 => 
       array (
-        'route' => 'GET /demo/times',
-        'ApiMethod' => '(type="GET")',
+        'route' => 'GET|POST /demo/times',
+        'ApiMethod' => '(type="GET|POST")',
         'ApiRoute' => '(name="/demo/times")',
       ),
     ),
@@ -146,7 +183,7 @@ $GLOBALS['meta'] = array (
     array (
       0 => 
       array (
-        'uri' => 'GET /demo/times',
+        'uri' => 'GET|POST /demo/times',
         'params' => false,
       ),
     ),
@@ -155,6 +192,7 @@ $GLOBALS['meta'] = array (
 $app = new \Lazyphp\Core\Application();
 $app->route('GET /',array( 'Lazyphp\Controller\LazyphpController','index'));
 $app->route('GET /info',array( 'Lazyphp\Controller\LazyphpController','info'));
-$app->route('GET /demo/times',array( 'Lazyphp\Controller\LazyphpController','demo'));
+$app->route('POST /postonly',array( 'Lazyphp\Controller\LazyphpController','post'));
+$app->route('GET|POST /demo/times',array( 'Lazyphp\Controller\LazyphpController','demo'));
 $app->run();
 }

@@ -608,7 +608,9 @@ function parse_comment( $comment )
     $comment = str_replace(PHP_EOL, "\n", $comment);
     $ret = false;
 
-    $reg = '/@Api(.+?)\((.+?)\)$/im';
+    //echo $comment;
+
+    $reg = '/@Api(.+?)\((.+?)\)\s*$/im';
     if( preg_match_all($reg,$comment,$out) )
     {
         $ret = array() ; $i = 0 ;
@@ -621,6 +623,8 @@ function parse_comment( $comment )
 
         }
     }
+
+    print_r( $ret );
     return $ret;
 }
 

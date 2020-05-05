@@ -1,6 +1,17 @@
-LazyPHP4.5
+LazyPHP4.6
 
 [TOC]
+
+
+# 更新日志
+
+## 4.6 版本
+
+- flightphp 更新
+- 文档生成部分修正引用jquery时cdn失效的问题
+- 方法头注释解析支持行尾空白格
+- 添加 Nette Database Core ，通过 ndb() 方法全局引用，使用说明见 https://doc.nette.org/en/3.0/database-core
+- 添加 robo 文件，支持安装、启动测试环境的命令
 
 # LazyPHP3、LazyPHP4和LazyPHP4.5 
 

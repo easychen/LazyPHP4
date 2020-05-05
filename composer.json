@@ -1,16 +1,8 @@
 {
     "require":
     {
-        "php":">=5.3.3"
-    },
-    "require-dev":     
-    {      
-        "behat/behat": "2.4.*@stable",     
-        "behat/mink": "1.4@stable",        
-        "behat/mink-extension": "*",       
-        "behat/mink-goutte-driver": "1.0.*@dev",       
-        "crada/php-apidoc": "@dev",     
-        "robmorgan/phinx": "*"     
+        "php":">=5.3.3",
+        "nette/database": "^3.0"
     },
     "autoload":
     {
@@ -27,7 +19,7 @@
     "repositories": {
         "packagist": {
             "type": "composer",
-            "url": "https://packagist.phpcomposer.com"
+            "url": "https://mirrors.aliyun.com/composer/"
         }
     }
 }

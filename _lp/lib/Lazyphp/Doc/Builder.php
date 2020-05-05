@@ -228,6 +228,8 @@ class Builder
         $st_labels = array(
             'POST'   => 'label-primary',
             'GET'    => 'label-success',
+            'GET|POST'    => 'label-primary',
+            'POST|GET'    => 'label-primary',
             'PUT'    => 'label-warning',
             'DELETE' => 'label-danger'
         );

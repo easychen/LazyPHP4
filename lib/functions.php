@@ -9,6 +9,25 @@ function table( $name )
     return $GLOBALS['LP_LDO_'.$name];
 }
 
+function ndb( $dsn = null, $user = null, $password = null )
+{
+    if( $dsn === null )
+    {
+        $dsn = c('database','dsn');
+        $user = c('database','user');
+        $password = c('database','password');
+    }
+    
+    $key = "_LP_NDB" . md5( $dsn.'.'.$user.'.'.$password );
+    
+    if( !isset( $GLOBALS[$key] ) )
+    {
+        $GLOBALS[$key] = new Nette\Database\Connection($dsn, $user, $password);
+    }
+
+    return $GLOBALS[$key];
+}
+
 function lp_throw( $type , $info , $args = null )
 {
     if( !is_array( $args )) $args = [ $args ] ;
