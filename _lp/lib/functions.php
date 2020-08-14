@@ -624,7 +624,7 @@ function parse_comment( $comment )
         }
     }
 
-    print_r( $ret );
+    // print_r( $ret );
     return $ret;
 }
 
