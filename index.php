@@ -8,7 +8,7 @@
 
 // 定义系统常量
 define( 'DS' , DIRECTORY_SEPARATOR );
-define( 'AROOT' , dirname( __FILE__ ) . DS  );
+define( 'AROOT' , dirname( __FILE__ ) . DS . 'source' . DS  );
 
 // 载入核心框架初始化脚本
-require '_lp'.DS .'lp.init.php';
+require 'source' . DS . '_lp' . DS .'lp.init.php';

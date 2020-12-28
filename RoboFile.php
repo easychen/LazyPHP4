@@ -6,28 +6,14 @@
  */
 class RoboFile extends \Robo\Tasks
 {
-    /**
-     * 初始化框架
-     */
-    public function init()
+    // define public methods as commands
+    public function install()
     {
-        $this->_exec("composer install");
+        $this->_exec("cd source && composer install");
     }
-    /**
-     * 启动本地测试服务器
-     */
+
     public function dev()
     {
-        $this->_exec("php -S 0.0.0.0:8000 route.php");
+        $this->_exec("php -S 0.0.0.0:8088 route.php");
     }
-
-    /**
-     * 编译
-     */
-    public function build()
-    {
-        $this->_exec("php _build.php");
-    }
-
-
 }
